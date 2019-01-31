@@ -22,7 +22,7 @@
               action="{{url_for('edit_budget_file_name', budget_file=budget_file)}}">
             <td><input name="filename" value="{{budget_file[:-4]}}" size="20"></td>
             </td>
-            <td><input type="image" src="{{url_for('static', filename='ok.png')}}"></td>
+            <td><input type="image" src="{{url_for('static', filename='ok.png')}}" alt="Ок"></td>
         </form>
     </tr>
 </table>
@@ -34,7 +34,7 @@
               action="{{url_for('edit_budget_edit_memo', budget_file=budget_file)}}">
             <td><input name="memo" value="{{budget.memo}}" size="30"></td>
             </td>
-            <td><input type="image" src="{{url_for('static', filename='ok.png')}}"></td>
+            <td><input type="image" src="{{url_for('static', filename='ok.png')}}" alt="Ок"></td>
         </form>
     </tr>
 </table>
@@ -59,7 +59,7 @@
             <form method="post" name="deleteperson"
                   action="{{url_for('edit_budget_remove_person', budget_file=budget_file, person_name=person.name())}}">
             <input name="deleteperson{{budget.persons_list.index(person)}}"
-                   type="image"
+                   type="image" alt="Удалить"
                    src="{{url_for('static', filename='cross.png')}}">
             </form>
         </td>
@@ -80,7 +80,7 @@
             <input name="paysfor" type="text" list="personslist" size="10">
         </td>
         <td>
-            <input name="addperson" type="image" src="{{url_for('static', filename='plus.png')}}">
+            <input name="addperson" type="image" src="{{url_for('static', filename='plus.png')}}"  alt="Добавить">
         </td>
 
     </form>
@@ -105,11 +105,11 @@
         <form method="post" name="spendingoperation"
               action="{{url_for('edit_budget_edit_spending', budget_file=budget_file, spending_number=budget.spending_list.index(s))}}">
             <td>
-                <input name="editspending" type="image"
+                <input name="editspending" type="image" alt="Редактировать"
                        src="{{url_for('static', filename='edit.png')}}">
             </td>
             <td>
-                <input name="deletespending" type="image"
+                <input name="deletespending" type="image" alt="Удалить"
                        src="{{url_for('static', filename='cross.png')}}">
             </td>
         </form>
@@ -122,7 +122,7 @@
         <td></td>
         <td></td>
         <td>
-            <input name="addspending" type="image" src="{{url_for('static', filename='plus.png')}}">
+            <input name="addspending" type="image"  alt="Добавить" src="{{url_for('static', filename='plus.png')}}">
         </td>
 
     </form>

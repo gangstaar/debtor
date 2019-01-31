@@ -37,7 +37,7 @@
                 <input name="spendingpayer" type="text" value="{{spending.payer.name()}}" list="personslist" size="20">
             </td>
             <td>
-                <input type="image" src="{{url_for('static', filename='ok.png')}}">
+                <input type="image" alt="Ок" src="{{url_for('static', filename='ok.png')}}">
             </td>
         </tr>
     </table>
@@ -59,7 +59,7 @@
         <td>
             <form method="post" name="deleteperson"
                   action="{{url_for('edit_spending_remove_person', budget_file=budget_file, consumer_number=spending.consumers_list.index(c))}}">
-            <input type="image" src="{{url_for('static', filename='cross.png')}}">
+            <input type="image" src="{{url_for('static', filename='cross.png')}}"  alt="Удалить">
             </form>
         </td>
     </tr>
@@ -76,7 +76,7 @@
             <input name="name" type="text" list="personslist" size="10">
         </td>
         <td>
-            <input name="addperson" type="image" src="{{url_for('static', filename='plus.png')}}">
+            <input name="addperson" type="image" src="{{url_for('static', filename='plus.png')}}"  alt="Добавить">
         </td>
     </form>
     </tr>
@@ -103,7 +103,7 @@
         {% else %}
         <td><input name="ok" type="submit" value="Добавить" disabled ></td>
         {% endif %}
-        <td><input name="cancel" type="submit" value="Отмена"></td>
+        <td><input name="cancel" type="submit" value="Удалить"></td>
     </tr>
 </table>
 </form>
