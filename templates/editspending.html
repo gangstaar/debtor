@@ -1,0 +1,111 @@
+{% extends 'base.html' %}
+
+{% block header %}
+<h1>
+{% block title %}
+Редактирование -
+{% if budget_file %}
+    {{budget_file[:-4]}}
+{% else %}
+    не выбран
+{% endif %}
+    - Добавление траты
+{% endblock %}
+</h1>
+{% endblock %}
+
+{% block content %}
+<hr>
+
+<datalist id="personslist">
+    {% for person in budget.persons_list %}<option>{{person.name()}}</option>{% endfor %}
+</datalist>
+
+<form name="editspendinghead" method="post" action="{{url_for('edit_spending_edit_head', budget_file=budget_file)}}">
+    <table border="0" cellpadding="3" rules="rows">
+        <tr>
+            <td><b>Сумма</b></td><td><b>Описание</b></td><td><b>Оплатил</b></td>
+        </tr>
+        <tr>
+            <td>
+                <input name="spendingamount" type="text" value="{{spending.amount}}" size="10">
+            </td>
+            <td>
+                <input name="spendingmemo" type="text" value="{{spending.memo}}" size="20">
+            </td>
+            <td>
+                <input name="spendingpayer" type="text" value="{{spending.payer.name()}}" list="personslist" size="20">
+            </td>
+            <td>
+                <input type="image" src="{{url_for('static', filename='ok.png')}}">
+            </td>
+        </tr>
+    </table>
+</form>
+
+
+<h3>Потребители:</h3>
+
+<table border="0" cellpadding="3" rules="rows">
+    <tr>
+        <td><b>Сумма</b></td>
+        <td><b>Имя</b></td>
+        <td></td>
+    </tr>
+    {% for c in spending.consumers_list %}
+    <tr>
+        <td>{{"{0:8.2f}".format(c.amount)}}</td>
+        <td>{{c.who.name()}}</td>
+        <td>
+            <form method="post" name="deleteperson"
+                  action="{{url_for('edit_spending_remove_person', budget_file=budget_file, consumer_number=spending.consumers_list.index(c))}}">
+            <input type="image" src="{{url_for('static', filename='cross.png')}}">
+            </form>
+        </td>
+    </tr>
+    {% endfor %}
+    {% if spending.is_calculated() %}
+    {% else %}
+    <tr>
+    <form method="post" name="addperson"
+          action="{{url_for('edit_spending_add_person', budget_file=budget_file)}}">
+        <td>
+            <input name="amount" type="text" size="10" value="0">
+        </td>
+        <td>
+            <input name="name" type="text" list="personslist" size="10">
+        </td>
+        <td>
+            <input name="addperson" type="image" src="{{url_for('static', filename='plus.png')}}">
+        </td>
+    </form>
+    </tr>
+    {% endif %}
+</table>
+<form method="post" name="calc"
+      action="{{url_for('edit_spending_calc', budget_file=budget_file)}}">
+    <input name="aver" type="submit" value="Поровну" >
+    <input name="weighted" type="submit" value="C весом" >
+</form>
+<hr>
+{% if spending.is_calculated() %}
+<font color="green">Расход распределён</font>
+{% else %}
+<font color="red">Не распределённая сумма: {{spending.get_undistributed_value()}}</font>
+{% endif %}
+<hr>
+<form method="post" name="ok"
+      action="{{url_for('edit_spending_ok', budget_file=budget_file)}}">
+<table>
+    <tr>
+        {% if spending.is_calculated() and budget.is_participant(spending.payer.name()) %}
+        <td><input name="ok" type="submit" value="Добавить" ></td>
+        {% else %}
+        <td><input name="ok" type="submit" value="Добавить" disabled ></td>
+        {% endif %}
+        <td><input name="cancel" type="submit" value="Отмена"></td>
+    </tr>
+</table>
+</form>
+
+{% endblock %}

@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}{% endblock %} - Должник</title>
+</head>
+<nav>
+    <h2><a href="{{url_for('main')}}">Главная</a></h2>
+    <table cellpadding="5" border="0" rules="cols">
+        <tr align="center">
+        {% for budget in g.saved_budgets %}
+            <td>
+                <a href="{{url_for('print_budget', budget_file=budget)}}" title="Посмотреть отчёт"><font face="Tahoma" size="5">{{budget[:-4]}}</font></a> <br><br>
+                <a href="{{url_for('edit_budget', budget_file=budget)}}" title="Редактировать">
+                    <img src={{url_for('static', filename='edit.png')}} alt="Редактировать" border="0"
+                         width="17" height="17"></a>
+                <a href="{{url_for('delete_budget', budget_file=budget)}}" title="Удалить">
+                    <img src={{url_for('static', filename='cross.png')}} alt="Удалить" border="0"
+                         width="17" height="17"></a>
+                <a href="{{url_for('copy_budget', budget_file=budget)}}" title="Создать копию">
+                    <img src={{url_for('static', filename='cpy.png')}} alt="Создать копию" border="0"
+                         width="17" height="17"></a>
+            </td>
+        {% endfor %}
+        </tr>
+    </table>
+</nav>
+<body>
+{% block header %}{% endblock %}
+{% block content %}{% endblock %}
+</body>
+</html>
