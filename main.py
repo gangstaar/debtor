@@ -7,7 +7,7 @@ import os
 # budget = bio.get_test_budget()
 # bio.print_report(budget)
 
-app = Flask(__name__)
+app = Flask(__name__, static_url_path='/debtor/static')
 app.config.from_mapping(SECRET_KEY='deva')
 app.current_spending = None
 app.static_folder = './static/debtor'
