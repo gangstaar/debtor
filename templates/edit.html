@@ -19,7 +19,7 @@
     <tr>
         <td>Имя файла: </td>
         <form method="post" name="editbudgetfilename"
-              action="{{url_for('edit_budget_file_name', budget_file=budget_file)}}">
+              action="{{url_for('budget.edit_budget_file_name', budget_file=budget_file)}}">
             <td><input name="filename" value="{{budget_file[:-4]}}" size="20"></td>
             </td>
             <td><input type="image" src="{{url_for('static', filename='ok.png')}}" alt="Ок"></td>
@@ -27,11 +27,14 @@
     </tr>
 </table>
 <hr>
-<h3>Описание:</h3>
+<h3></h3>
 <table>
     <tr>
+        <td>
+          Описание:
+        </td>
         <form method="post" name="editbudgetmemo"
-              action="{{url_for('edit_budget_edit_memo', budget_file=budget_file)}}">
+              action="{{url_for('budget.edit_budget_edit_memo', budget_file=budget_file)}}">
             <td><input name="memo" value="{{budget.memo}}" size="30"></td>
             </td>
             <td><input type="image" src="{{url_for('static', filename='ok.png')}}" alt="Ок"></td>
@@ -39,9 +42,39 @@
     </tr>
 </table>
 
+{% if budget.debt_operations_list.__len__() > 0 %}
 <hr>
 
-<h3>Участники:</h3>
+<h3>Транзакции</h3>
+
+<form method="post" name="calculatebuttons"
+      action="{{url_for('budget.edit_budget_calculate', budget_file=budget_file)}}">
+
+    <table cellpadding="2">
+        <tr align="center">
+            <td><b>Алгоритм расчёта:</b></td>
+            <td><input name="simple" type="submit" value="Простой"></td>
+            <td><input name="monte-carlo" type="submit" value="Монте-Карло"></td>
+        </tr>
+        <tr>
+            <td colspan="3"> </td>
+        </tr>
+    </table>
+</form>
+
+
+<table cellpadding="5">
+    {% for op in budget.debt_operations_list %}
+    <tr>
+        <td>{{op.debtor.name()}}</td><td> ----> </td><td>{{op.creditor.name()}}</td><td>{{"{0:8.2f}".format(op.amount)}} Р</td>
+    </tr>
+    {% endfor %}
+</table>
+{% endif %}
+
+<hr>
+
+<h3>Участники</h3>
 
 <table border="0" cellpadding="3" rules="rows">
     <tr>
@@ -57,7 +90,7 @@
         <td>{{person.pays_for}}</td>
         <td>
             <form method="post" name="deleteperson"
-                  action="{{url_for('edit_budget_remove_person', budget_file=budget_file, person_name=person.name())}}">
+                  action="{{url_for('budget.edit_budget_remove_person', budget_file=budget_file, person_name=person.name())}}">
             <input name="deleteperson{{budget.persons_list.index(person)}}"
                    type="image" alt="Удалить"
                    src="{{url_for('static', filename='cross.png')}}">
@@ -66,7 +99,7 @@
     </tr>
     {% endfor %}
     <form method="post" name="addperson"
-          action="{{url_for('edit_budget_add_person', budget_file=budget_file)}}">
+          action="{{url_for('budget.edit_budget_add_person', budget_file=budget_file)}}">
         <td>
             <input name="name" type="text" size="10">
         </td>
@@ -88,7 +121,7 @@
 
 <hr>
 
-<h3>Операции:</h3>
+<h3>Операции</h3>
 
 <table border="0" cellpadding="3" rules="rows">
     <tr>
@@ -127,30 +160,6 @@
 
     </form>
 </table>
-
-<hr>
-
-<h3>Транзакции:</h3>
-
-<form method="post" name="calculatebuttons"
-      action="{{url_for('edit_budget_calculate', budget_file=budget_file)}}">
-<table>
-    <tr>
-        <td><input name="simple" type="submit" value="Простой" ></td>
-        <td><input name="monte-carlo" type="submit" value="Монте-Карло"></td>
-    </tr>
-</table>
-</form>
-
-{% if budget.debt_operations_list.__len__() > 0 %}
-<table>
-    {% for op in budget.debt_operations_list %}
-    <tr>
-        <td>{{op.debtor.name()}}</td><td> ----> </td><td>{{op.creditor.name()}}</td><td>{{"{0:8.2f}".format(op.amount)}} Р</td>
-    </tr>
-    {% endfor %}
-</table>
-{% endif %}
 
 <hr>
 

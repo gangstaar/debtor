@@ -19,7 +19,7 @@
 
 <h3> Удалить бюджет "{{budget_file[:-4]}}"? </h3>
 <form method="post" name="ok"
-      action="{{url_for('delete_budget_ok', budget_file=budget_file)}}">
+      action="{{url_for('budget.delete_budget_ok', budget_file=budget_file)}}">
 <table>
     <tr>
         <td><input name="ok" type="submit" value="Ок" ></td>

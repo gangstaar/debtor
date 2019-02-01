@@ -5,8 +5,15 @@
 {% endblock %}
 
 {% block content %}
+<div class="block1">
+    <p>
+    Веб-сервис поиска должников в компании. Для начала создайте новый бюджет или выберете
+    существующий из списка в панели навигации.
+    </p>
+</div><br>
 <form method="post">
     <label for="budgetname">Имя файла нового бюджета: </label>
     <input name="budgetname" id="budgetname" required> <input type="submit" value="Создать">
 </form>
+
 {% endblock %}
