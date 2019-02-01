@@ -13,6 +13,19 @@
     float: top;
     text-align: center;
    }
+   .footer {
+    font-size: 60%;
+    font-family: Arial;
+    font-color: gray;
+    background: white;
+    padding-top: 50px;
+    text-align: center;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: auto;
+    height: 10px;
+    margin-top: -10px;
+   }
 
    h1 {
    text-align: center;
@@ -54,8 +67,12 @@
         <td valign="top">
             {% block header %}{% endblock %}
             {% block content %}{% endblock %}
+            <div class="footer">
+                by ukrop. 2019
+            </div>
         </td>
     </tr>
 </table>
+
 </body>
 </html>
