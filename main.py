@@ -1,7 +1,7 @@
 import budget.io as bio
 import budget.types as b
 from flask import Flask, render_template, g, request, flash, Blueprint
-from .views.budget import bp as editbudget
+from views.budget import bp as editbudget
 
 # budget = bio.get_test_budget()
 # bio.print_report(budget)
