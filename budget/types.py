@@ -83,14 +83,26 @@ class TSpending:
             return False
 
     def get_consumption_for_person(self, person_name):
-        # type: (str) -> None
+        # type: (str) -> TConsumer
         if isinstance(person_name, TPerson):
             person_name = person_name.name
 
         for cons in self.consumers_list:
             if cons.person.name == person_name:
                 return cons
-        return []
+        return None
+
+    def get_consumption_amount_for_person(self, person_name):
+        # type: (str) -> float
+        if isinstance(person_name, TPerson):
+            person_name = person_name.name
+
+        cons = self.get_consumption_for_person(person_name)
+
+        if cons is None:
+            return 0
+        else:
+            return cons.amount
 
     def get_undistributed_value(self):
         a = 0

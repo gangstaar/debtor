@@ -98,7 +98,7 @@
         </td>
     </tr>
     {% endfor %}
-    <form method="post" name="addperson"
+    <form method="post" name="addperson" id="addperson"
           action="{{url_for('budget.edit_budget_add_person', budget_file=budget_file)}}">
         <td>
             <input name="name" type="text" size="10">
@@ -107,10 +107,14 @@
             <input name="weight" type="text" size="5" value="1.0">
         </td>
         <td>
-            <datalist id="personslist">
-                {% for person in budget.persons_list %}<option>{{person.name}}</option>{% endfor %}
-            </datalist>
-            <input name="paysfor" type="text" list="personslist" size="10">
+            <!--<datalist id="personslist">-->
+                <!--{% for person in budget.persons_list %}<option>{{person.name}}</option>{% endfor %}-->
+            <!--</datalist>-->
+            <select name="paysfor" form="addperson">
+                <option></option>
+            {% for person in budget.persons_list %}<option>{{person.name}}</option>{% endfor %}
+            </select>
+            <!--<input name="paysfor" type="select" list="personslist" size="10">-->
         </td>
         <td>
             <input name="addperson" type="image" src="{{url_for('static', filename='plus.png')}}"  alt="Добавить">
@@ -123,8 +127,9 @@
 
 <h3>Операции</h3>
 
-<table border="0" cellpadding="3" rules="rows">
-    <tr>
+<table border="0" cellpadding="5" rules="rows">
+    <tr align="center">
+        <td width="100"><b>Дата</b></td>
         <td><b>Сумма</b></td>
         <td><b>Описание</b></td>
         <td><b>Оплатил</b></td>
@@ -132,6 +137,7 @@
     </tr>
     {% for s in budget.spending_list %}
     <tr>
+        <td>{{s.date_time.strftime('%d.%m.%y')}}</td>
         <td width="80">{{s.amount}}</td>
         <td width="200">{{s.memo}}</td>
         <td width="100">{{s.payer.name}}</td>
