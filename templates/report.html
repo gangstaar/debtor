@@ -19,7 +19,7 @@
 <table border="0" cellspacing="3">
     {% for p in budget.persons_list %}
     <tr>
-        <td>{{p.name()}}</td><td>{{p.weight()}}</td><td>{% if p.pays_for.strip().__len__()>0 %} платит за {{p.pays_for}} {% endif %}</td>
+        <td>{{p.name}}</td><td>{{p.weight}}</td><td>{% if p.pays_for.strip().__len__()>0 %} платит за {{p.pays_for}} {% endif %}</td>
     </tr>
     {% endfor %}
 </table>
@@ -28,11 +28,11 @@
 <table border="0" cellpadding="3" rules="rows">
     {% for s in budget.spending_list %}
     <tr>
-        <td>    </td><td>{{s.amount}} Р </td><td>за {{s.memo}}</td><td>заплатил </td><td>{{s.payer.name()}}</td>
+        <td>    </td><td>{{s.amount}} Р </td><td>за {{s.memo}}</td><td>заплатил </td><td>{{s.payer.name}}</td>
         <td> потребляли:</td>
         <td>
             {% for c in s.consumers_list %}
-            {{c.who.name()}}{% if not loop.last %}, {% else %}.{% endif %}
+            {{c.person.name}}{% if not loop.last %}, {% else %}.{% endif %}
             {% endfor %}
         </td>
     </tr>
@@ -43,7 +43,7 @@
     {% for p in budget.persons_list %}
         {% if budget.get_spending_amount_for_person(p) > 0 %}
         <tr>
-            <td>{{p.name()}}</td><td> всего потратил</td><td>{{budget.get_spending_amount_for_person(p)}} Р:</td>
+            <td>{{p.name}}</td><td> всего потратил</td><td>{{budget.get_spending_amount_for_person(p)}} Р:</td>
             {% for sp in budget.get_spending_list_for_person(p) %}
             <tr>
                 <td></td><td></td><td>{{sp.amount}} Р </td><td>на {{sp.memo}}</td>
@@ -57,11 +57,11 @@
 <table>
     {% for p in budget.persons_list %}
     <tr>
-        <td>{{p.name()}}</td><td> всего потребил на </td><td>{{"{0:8.2f}".format(budget.get_consumption_amount_for_person(p))}} Р</td>
+        <td>{{p.name}}</td><td> всего потребил на </td><td>{{"{0:8.2f}".format(budget.get_consumption_amount_for_person(p))}} Р</td>
         {% for sp in budget.get_consumption_list_for_person(p) %}
         <tr>
             <td></td><td></td><td>{{"{0:8.2f}".format(sp.amount)}} Р: </td><td>
-            <td>{{sp.memo}}</td><td> за счёт </td><td>{{sp.spending.payer.name()}}</td>
+            <td>{{sp.memo}}</td><td> за счёт </td><td>{{sp.spending.payer.name}}</td>
         </tr>
         {% endfor %}
     </tr>
@@ -76,7 +76,7 @@
     </tr>
     {% for p in budget.persons_list %}
     <tr align="center">
-        <td>{{p.name()}}</td>
+        <td>{{p.name}}</td>
         <td>{{"{0:8.2f}".format(budget.get_debt_for_person(p))}} Р</td>
         <td>{{"{0:8.2f}".format(budget.get_consumption_amount_for_person(p)-budget.get_spending_amount_for_person(p))}} Р</td>
         {% if budget.get_person_name_who_pays_for(p) != '' and budget.get_debt_for_person(p) == 0%}
@@ -94,7 +94,7 @@
 <table cellpadding="5">
     {% for op in budget.debt_operations_list %}
     <tr>
-        <td>{{op.debtor.name()}}</td><td> ----> </td><td>{{op.creditor.name()}}</td><td>{{"{0:8.2f}".format(op.amount)}} Р</td>
+        <td>{{op.debtor.name}}</td><td> ----> </td><td>{{op.creditor.name}}</td><td>{{"{0:8.2f}".format(op.amount)}} Р</td>
     </tr>
     {% endfor %}
 </table>

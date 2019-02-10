@@ -66,7 +66,7 @@
 <table cellpadding="5">
     {% for op in budget.debt_operations_list %}
     <tr>
-        <td>{{op.debtor.name()}}</td><td> ----> </td><td>{{op.creditor.name()}}</td><td>{{"{0:8.2f}".format(op.amount)}} Р</td>
+        <td>{{op.debtor.name}}</td><td> ----> </td><td>{{op.creditor.name}}</td><td>{{"{0:8.2f}".format(op.amount)}} Р</td>
     </tr>
     {% endfor %}
 </table>
@@ -85,12 +85,12 @@
     </tr>
     {% for person in budget.persons_list %}
     <tr>
-        <td>{{person.name()}}</td>
-        <td>{{person.weight()}}</td>
+        <td>{{person.name}}</td>
+        <td>{{person.weight}}</td>
         <td>{{person.pays_for}}</td>
         <td>
             <form method="post" name="deleteperson"
-                  action="{{url_for('budget.edit_budget_remove_person', budget_file=budget_file, person_name=person.name())}}">
+                  action="{{url_for('budget.edit_budget_remove_person', budget_file=budget_file, person_name=person.name)}}">
             <input name="deleteperson{{budget.persons_list.index(person)}}"
                    type="image" alt="Удалить"
                    src="{{url_for('static', filename='cross.png')}}">
@@ -108,7 +108,7 @@
         </td>
         <td>
             <datalist id="personslist">
-                {% for person in budget.persons_list %}<option>{{person.name()}}</option>{% endfor %}
+                {% for person in budget.persons_list %}<option>{{person.name}}</option>{% endfor %}
             </datalist>
             <input name="paysfor" type="text" list="personslist" size="10">
         </td>
@@ -134,7 +134,7 @@
     <tr>
         <td width="80">{{s.amount}}</td>
         <td width="200">{{s.memo}}</td>
-        <td width="100">{{s.payer.name()}}</td>
+        <td width="100">{{s.payer.name}}</td>
         <form method="post" name="spendingoperation"
               action="{{url_for('edit_budget_edit_spending', budget_file=budget_file, spending_number=budget.spending_list.index(s))}}">
             <td>

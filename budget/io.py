@@ -11,7 +11,7 @@ def get_report(budget, is_long=False):
     rep = ['В бюджете "' + budget.memo + '" участвуют: ']
     s = ''
     for p in budget.persons_list:
-        s += p.name() + ' ({0:2.1f})'.format(p.weight())
+        s += p.name + ' ({0:2.1f})'.format(p.weight)
         if p != budget.persons_list[-1]:
             s += ', '
     rep.append(s)
@@ -19,13 +19,13 @@ def get_report(budget, is_long=False):
 
     rep.append("Зафиксировано операций на сумму " + '{0:7.2f}'.format(budget.get_spending_amount_total()) + " Р:")
     for s in budget.spending_list:
-        n = s.payer.name() + ';'
+        n = s.payer.name + ';'
         line = '    ' + s.date_time.strftime('%d.%m.%Y %H:%M') + ' {0:8.2f}'.format(s.amount) + \
                ' Р за ' + '{0:20s}'.format(s.memo) + ' заплатил ' + '{0:8s}'.format(n)
 
         names = []
         for c in s.consumers_list:
-            names.append(c.who.name())
+            names.append(c.person.name)
 
         line += ' потребляли:'
         for i in range(names.__len__()):
@@ -44,7 +44,7 @@ def get_report(budget, is_long=False):
         s = budget.get_spending_amount_for_person(p)
         if s == 0.0:
             continue
-        rep.append('{0:8s}'.format(p.name()) + ' всего потратил ' + "{0:5.2f}".format(s) + ' Р:')
+        rep.append('{0:8s}'.format(p.name) + ' всего потратил ' + "{0:5.2f}".format(s) + ' Р:')
 
         if is_long:
             for sp in budget.get_spending_list_for_person(p):
@@ -55,13 +55,13 @@ def get_report(budget, is_long=False):
     consume_amount = 0.0
     for p in budget.persons_list:
         c = budget.get_consumption_amount_for_person(p)
-        rep.append('{0:8s}'.format(p.name()) + ' всего потребил на ' + "{0:8.2f}".format(c) + ' Р')
+        rep.append('{0:8s}'.format(p.name) + ' всего потребил на ' + "{0:8.2f}".format(c) + ' Р')
         consume_amount += c
 
         if is_long:
             for sp in budget.get_consumption_list_for_person(p):
                 rep.append('    ' + "{0:8.2f}".format(sp.amount) + ' Р: ' +
-                           '{0:20s}'.format(sp.memo) + ' за счёт ' + '{0:8s}'.format(sp.spending.payer.name()))
+                           '{0:20s}'.format(sp.memo) + ' за счёт ' + '{0:8s}'.format(sp.spending.payer.name))
 
     rep.append('Сумма ' + '{:8.2f} Р'.format(consume_amount))
     rep.append('')
@@ -69,8 +69,8 @@ def get_report(budget, is_long=False):
     pos_sum = 0
     for p in budget.persons_list:
         debt = budget.get_debt_for_person(p)
-        line = '{0:8s}'.format(p.name()) + ' должен ' + "{0:8.2f}".format(debt) + ' Р'
-        payer_name = budget.get_person_name_who_pays_for(p)
+        line = '{0:8s}'.format(p.name) + ' должен ' + "{0:8.2f}".format(debt) + ' Р'
+        payer_name = budget.get_person_name_who_pays_for(p.name)
         if payer_name != '' and debt == 0.0:
             line += ' (платит ' + payer_name + ')'
         rep.append(line)
@@ -82,7 +82,7 @@ def get_report(budget, is_long=False):
     rep.append('')
     trans_sum = 0
     for op in budget.debt_operations_list:
-        rep.append('{0:8s}'.format(op.debtor.name()) + ' -отдаёт-> ' + '{0:8s}'.format(op.creditor.name()) + ' {0:8.2f}'.format(op.amount) + ' Р')
+        rep.append('{0:8s}'.format(op.debtor.name) + ' -отдаёт-> ' + '{0:8s}'.format(op.creditor.name) + ' {0:8.2f}'.format(op.amount) + ' Р')
         trans_sum += op.amount
     rep.append('{0:2d}'.format(len(budget.debt_operations_list)) + ' переводов на сумму ' + '{0:8.2f} Р.'.format(trans_sum))
 
@@ -104,7 +104,7 @@ def get_report_html(budget: TBudget, is_long=False):
     s = '<table>'
     for p in budget.persons_list:
         s += '<tr>'
-        s += '<td>' + p.name() + '</td> <td>' + ' ({0:2.1f})</td>'.format(p.weight())
+        s += '<td>' + p.name + '</td> <td>' + ' ({0:2.1f})</td>'.format(p.weight)
         s += '</tr>'
     s += '</table>'
     rep.append(s)
@@ -113,14 +113,16 @@ def get_report_html(budget: TBudget, is_long=False):
     rep.append("<br>Зафиксировано операций на сумму " + '{0:7.2f}'.format(budget.get_spending_amount_total()) + " Р:")
     line = '<table>'
     for s in budget.spending_list:
-        n = s.payer.name() + ';'
+        n = s.payer.name + ';'
         line += '<tr>'
-        line += '<td>    </td><td>' + '{0:8.2f}'.format(s.amount) + ' Р </td><td>за ' + '{0:20s}</td><td>'.format(s.memo) + \
+        line += '<td>    </td><td>' + s.date_time.strftime('%d.%m.%Y %H:%M') + '</td><td>' + \
+                '{0:8.2f}'.format(s.amount) + \
+                ' Р </td><td>за ' + '{0:20s}</td><td>'.format(s.memo) + \
                 ' заплатил </td><td>' + '{0:8s}</td>'.format(n)
 
         names = []
         for c in s.consumers_list:
-            names.append(c.who.name())
+            names.append(c.person.name)
 
         line += '<td> потребляли:</td><td>'
         for i in range(names.__len__()):
@@ -142,7 +144,7 @@ def get_report_html(budget: TBudget, is_long=False):
             continue
 
         line += '<tr>'
-        line += '<td>{0:8s}</td><td>'.format(p.name()) + ' всего потратил </td><td>' + "{0:5.2f}".format(s) + ' Р:</td>'
+        line += '<td>{0:8s}</td><td>'.format(p.name) + ' всего потратил </td><td>' + "{0:5.2f}".format(s) + ' Р:</td>'
 
         if is_long:
             for sp in budget.get_spending_list_for_person(p):
@@ -159,7 +161,7 @@ def get_report_html(budget: TBudget, is_long=False):
     for p in budget.persons_list:
         c = budget.get_consumption_amount_for_person(p)
         line += '<tr>'
-        line += '<td>{0:8s}</td><td>'.format(p.name()) + ' всего потребил на </td><td>' + "{0:8.2f}".format(c) + ' Р</td>'
+        line += '<td>{0:8s}</td><td>'.format(p.name) + ' всего потребил на </td><td>' + "{0:8.2f}".format(c) + ' Р</td>'
         consume_amount += c
 
         if is_long:
@@ -167,7 +169,7 @@ def get_report_html(budget: TBudget, is_long=False):
             for sp in budget.get_consumption_list_for_person(p):
                 line += '<tr>'
                 line += '<td>    </td><td>' + "{0:8.2f}".format(sp.amount) + ' Р: </td><td>' + \
-                           '{0:20s}</td><td>'.format(sp.memo) + ' за счёт </td><td>' + '{0:8s}</td>'.format(sp.spending.payer.name())
+                           '{0:20s}</td><td>'.format(sp.memo) + ' за счёт </td><td>' + '{0:8s}</td>'.format(sp.spending.payer.name)
                 line += '</tr>'
             line += '</tr>'
 
@@ -181,7 +183,7 @@ def get_report_html(budget: TBudget, is_long=False):
     for p in budget.persons_list:
         debt = budget.get_debt_for_person(p)
         line += '<tr>'
-        line += '<td>{0:8s}</td><td>'.format(p.name()) + ' должен </td><td>' + "{0:8.2f}".format(debt) + ' Р</td>'
+        line += '<td>{0:8s}</td><td>'.format(p.name) + ' должен </td><td>' + "{0:8.2f}".format(debt) + ' Р</td>'
         payer_name = budget.get_person_name_who_pays_for(p)
         if payer_name != '' and debt == 0.0:
             line += '<td> (платит ' + payer_name + ')</td>'
@@ -193,8 +195,8 @@ def get_report_html(budget: TBudget, is_long=False):
     line = '<br><br><table>'
     for op in budget.debt_operations_list:
         line += '<tr>'
-        line += '<td>{0:8s}</td><td>'.format(op.debtor.name()) + ' -отдаёт-> </td><td>' + \
-                '{0:8s}</td><td>'.format(op.creditor.name()) + ' {0:8.2f}'.format(op.amount) + ' Р</td>'
+        line += '<td>{0:8s}</td><td>'.format(op.debtor.name) + ' -отдаёт-> </td><td>' + \
+                '{0:8s}</td><td>'.format(op.creditor.name) + ' {0:8.2f}'.format(op.amount) + ' Р</td>'
         line += '</tr>'
     line += '</table>'
     rep.append(line)
@@ -238,77 +240,77 @@ def get_test_budget():
     budget.add_person(TPerson('Сергей', 1.0, 'Оля К'))
     budget.add_person(TPerson('Оля К', 0.5))
 
-    s = TSpending('Лемончелла', budget.get_person_by_name("Гошан"), 1850, dt(2018, 12, 28, 13, 0, 0))
+    s = TSpending(budget.get_person_by_name("Гошан"), 'Лемончелла', 1850, dt(2018, 12, 28, 13, 0, 0))
     s.add_consumer(budget.persons_list)
     s.calc_weighted()
     budget.add_spending(s)
 
-    s = TSpending('Калуа+', budget.get_person_by_name("Алексей"), 4800, dt(2018, 12, 28, 14, 0, 0))
+    s = TSpending(budget.get_person_by_name("Алексей"), 'Калуа+', 4800, dt(2018, 12, 28, 14, 0, 0))
     s.add_consumer(budget.persons_list)
     s.calc_weighted()
     budget.add_spending(s)
 
-    s = TSpending('Джин Ягер Ром', budget.get_person_by_name("Наташа"), 5768, dt(2018, 12, 28, 15, 0, 0))
+    s = TSpending(budget.get_person_by_name("Наташа"), 'Джин Ягер Ром', 5768, dt(2018, 12, 28, 15, 0, 0))
     s.add_consumer(budget.persons_list)
     s.calc_weighted()
     budget.add_spending(s)
 
-    s = TSpending('Такси', budget.get_person_by_name("Гошан"), 588, dt(2018, 12, 31, 17, 0, 0))
+    s = TSpending(budget.get_person_by_name("Гошан"), 'Такси', 588, dt(2018, 12, 31, 17, 0, 0))
     s.add_consumer(budget.persons_list)
     s.calc_weighted()
     budget.add_spending(s)
 
-    s = TSpending('Такси', budget.get_person_by_name("Сергей"), 450, dt(2018, 12, 31, 17, 31, 0))
+    s = TSpending(budget.get_person_by_name("Сергей"), 'Такси', 450, dt(2018, 12, 31, 17, 31, 0))
     s.add_consumer(budget.persons_list)
     s.calc_weighted()
     budget.add_spending(s)
 
-    s = TSpending('Ашан', budget.get_person_by_name("Вадим Н"), 10740, dt(2018, 12, 31, 17, 15, 0))
+    s = TSpending(budget.get_person_by_name("Вадим Н"), 'Ашан', 10740, dt(2018, 12, 31, 17, 15, 0))
     s.add_consumer(budget.persons_list)
     s.calc_weighted()
     budget.add_spending(s)
 
-    s = TSpending('Ашан', budget.get_person_by_name("Гошан"), 35, dt(2018, 12, 31, 17, 25, 0))
+    s = TSpending(budget.get_person_by_name("Гошан"), 'Ашан', 35, dt(2018, 12, 31, 17, 25, 0))
     s.add_consumer(budget.persons_list)
     s.calc_weighted()
     budget.add_spending(s)
 
-    s = TSpending('Автобус', budget.get_person_by_name("Гошан"), 50, dt(2019, 1, 2, 9, 0, 0))
+    s = TSpending(budget.get_person_by_name("Гошан"), 'Автобус', 50, dt(2019, 1, 2, 9, 0, 0))
     s.add_consumer(budget.persons_list)
     s.calc_weighted()
     budget.add_spending(s)
 
-    s = TSpending('Билеты в пещеру', budget.get_person_by_name("Гошан"), 8400, dt(2019, 1, 2, 13, 0, 0))
+    s = TSpending(budget.get_person_by_name("Гошан"), 'Билеты в пещеру', 8400, dt(2019, 1, 2, 13, 0, 0))
     s.add_consumer(budget.persons_list)
     s.calc_weighted()
     budget.add_spending(s)
 
-    s = TSpending('Автобус', budget.get_person_by_name("Сергей"), 250, dt(2019, 1, 2, 20, 0, 0))
+    s = TSpending(budget.get_person_by_name("Сергей"), 'Автобус', 250, dt(2019, 1, 2, 20, 0, 0))
     s.add_consumer(budget.persons_list)
     s.calc_weighted()
     budget.add_spending(s)
 
-    s = TSpending('Такси', budget.get_person_by_name("Вадюха"), 500, dt(2019, 1, 4, 10, 0, 0))
+    s = TSpending(budget.get_person_by_name("Вадюха"), 'Такси', 500, dt(2019, 1, 4, 10, 0, 0))
     s.add_consumer(budget.persons_list)
     s.calc_weighted()
     budget.add_spending(s)
 
-    s = TSpending('Такси', budget.get_person_by_name("Валёк"), 460, dt(2019, 1, 4, 10, 10, 0))
+    s = TSpending(budget.get_person_by_name("Валёк"), 'Такси', 460, dt(2019, 1, 4, 10, 10, 0))
     s.add_consumer(budget.persons_list)
     s.calc_weighted()
     budget.add_spending(s)
 
-    s = TSpending('КХ', budget.get_person_by_name("Алексей"), 170, dt(2019, 1, 4, 12, 0, 0))
+    s = TSpending(budget.get_person_by_name("Алексей"), 'КХ', 170, dt(2019, 1, 4, 12, 0, 0))
     s.add_consumer(budget.persons_list)
     s.calc_weighted()
     budget.add_spending(s)
 
-    s = TSpending('КХ', budget.get_person_by_name("Гошан"), 170, dt(2019, 1, 4, 12, 0, 0))
+    s = TSpending(budget.get_person_by_name("Гошан"), 'КХ', 170, dt(2019, 1, 4, 12, 0, 0))
     s.add_consumer(budget.persons_list)
     s.calc_weighted()
     budget.add_spending(s)
 
-    s = TSpending('На всё про всё', budget.get_person_by_name("Артём"), 18870, dt(2019, 1, 4, 15, 0, 0))
+    s = TSpending(budget.get_person_by_name("Артём"), 'На всё про всё', 18870, dt(2019, 1, 4, 15, 0, 0))
     s.add_consumer(budget.persons_list)
     s.calc_weighted()
     budget.add_spending(s)
@@ -340,20 +342,20 @@ def save_budget(budget: TBudget, file_name='budget.bdg'):
     f = open(file_name, 'w')
     f.write('BUDGET_MEMO = ' + '{0:20s}'.format(budget.memo))
     for p in budget.persons_list:
-        f.write('\n ' + '{0:10s}'.format(p.name()) + ' = {0:4.3f}'.format(p.weight()) + ' = {0:8s}'.format(p.pays_for))
+        f.write('\n ' + '{0:10s}'.format(p.name) + ' = {0:4.3f}'.format(p.weight) + ' = {0:8s}'.format(p.pays_for))
 
     for sp in budget.spending_list:
         f.write('\nSPENDING_MEMO = ' + '{0:20s}'.format(sp.memo))
         f.write('\n SPENDING_DATETIME = ' + sp.date_time.strftime(dtf))
-        f.write('\n SPENDING_PAYER_NAME = ' + '{0:10s}'.format(sp.payer.name()))
+        f.write('\n SPENDING_PAYER_NAME = ' + '{0:10s}'.format(sp.payer.name))
         f.write('\n SPENDING_AMOUNT = ' + '{0:12.6f}'.format(sp.amount))
         for p in sp.consumers_list:
-            f.write('\n ' + '{0:10s}'.format(p.who.name()) + ' = ' + '{0:12.6f}'.format(p.amount))
+            f.write('\n ' + '{0:10s}'.format(p.person.name) + ' = ' + '{0:12.6f}'.format(p.amount))
 
     for debt_o in budget.debt_operations_list:
         f.write('\nDEBT_OPERATION')
-        f.write('\n DEBTOR_NAME = ' + '{0:10s}'.format(debt_o.debtor.name()))
-        f.write('\n CREDITOR_NAME = ' + '{0:10s}'.format(debt_o.creditor.name()))
+        f.write('\n DEBTOR_NAME = ' + '{0:10s}'.format(debt_o.debtor.name))
+        f.write('\n CREDITOR_NAME = ' + '{0:10s}'.format(debt_o.creditor.name))
         f.write('\n AMOUNT = ' + '{0:12.6f}'.format(debt_o.amount))
 
     f.close()
@@ -407,9 +409,9 @@ def load_budget(file_name):
         payer = budget.get_person_by_name(payer_name)
 
         if datetime is not None:
-            spending = TSpending(memo, payer, amount, datetime)
+            spending = TSpending(payer, memo, amount, datetime)
         else:
-            spending = TSpending(memo, payer, amount)
+            spending = TSpending(payer, memo, amount)
 
         # Потребители
         lin = f.readline().strip()

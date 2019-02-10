@@ -9,54 +9,51 @@ date_time_format = '%d.%m.%Y %H:%M:%S'
 
 class TPerson:
     def __init__(self, name='', weight=1.0, pays_for=''):
-        self._name = name
-        self._weight = weight
-        self.pays_for = pays_for
-
-    def set_name(self, new_name):
-        self._name = new_name
-
-    def set_weight(self, new_weight):
-        self._weight = new_weight
-
-    def name(self):
-        return self._name
-
-    def weight(self):
-        return self._weight
+        self.name = name  # type: str
+        self.weight = weight  # type: float
+        self.pays_for = pays_for  # type: str
 
 
 class TDebtOperation:
-    def __init__(self, debtor='', creditor='', amount=0.0):
-        self.debtor = debtor
-        self.creditor = creditor
+    def __init__(self, debtor, creditor, amount=0.0):
+        self.debtor = debtor  # type: TPerson
+        self.creditor = creditor  # type: TPerson
         self.amount = amount
 
 
 class TConsumer:
-    def __init__(self, spending, who=TPerson(), amount=0.0, memo=''):
-        self.who = who
+    def __init__(self, spending, person, amount=0.0, memo=''):
+        self.person = person  # type: TPerson
         self.memo = memo
         self.amount = amount
-        self.spending = spending
+        self.spending = spending  # type: TSpending
 
 
 class TSpending:
-    def __init__(self, memo='', payer=TPerson(), amount=0.0, date_time=dt(2019, 1, 1, 0, 0, 0)):
+    def __init__(self, payer, memo='', amount=0.0, date_time=dt(2019, 1, 1, 0, 0, 0)):
         self.memo = memo
         self.payer = payer  # type: TPerson
         self.amount = amount
         self.consumers_list = []  # type: List[TConsumer]
         self.date_time = date_time  # type: datetime
 
-    def add_consumer(self, person, amount=0.00):
-        if isinstance(person, List):
-            for p in person:
+    def is_participant(self, person_name):
+        if isinstance(person_name, TPerson):
+            person_name = person_name.name
+
+        for cons in self.consumers_list:
+            if cons.person.name == person_name:
+                return True
+        return False
+
+    def add_consumer(self, persons, amount=0.00):
+        if isinstance(persons, List):
+            for p in persons:
                 if not self.is_participant(p):
                     self.consumers_list.append(TConsumer(self, p, amount, self.memo))
         else:
-            if not self.is_participant(person):
-                self.consumers_list.append(TConsumer(self, person, amount, self.memo))
+            if not self.is_participant(persons):
+                self.consumers_list.append(TConsumer(self, persons, amount, self.memo))
 
     def calc_average(self):
         n = len(self.consumers_list)
@@ -70,10 +67,10 @@ class TSpending:
         w = 0.0
         # Расчёт общего веса потребителей
         for cons in self.consumers_list:
-            w += cons.who.weight()
+            w += cons.person.weight
         # Расчёт расходов на каждого потребителя в соответствии с его весом
         for cons in self.consumers_list:
-            cons.amount = cons.who.weight() / w * self.amount
+            cons.amount = cons.person.weight / w * self.amount
 
     def is_calculated(self):
         a = 0
@@ -85,15 +82,13 @@ class TSpending:
         else:
             return False
 
-    def is_participant(self, person):
-        for cons in self.consumers_list:
-            if cons.who.name() == person.name():
-                return True
-        return False
+    def get_consumption_for_person(self, person_name):
+        # type: (str) -> None
+        if isinstance(person_name, TPerson):
+            person_name = person_name.name
 
-    def get_consumption_for_person(self, person):
         for cons in self.consumers_list:
-            if cons.who.name() == person.name():
+            if cons.person.name == person_name:
                 return cons
         return []
 
@@ -107,13 +102,33 @@ class TSpending:
 class TBudget:
     def __init__(self, memo=''):
         self.memo = memo
-        self.persons_list = []
+        self.persons_list = []  # type: List[TPerson]
         self.spending_list = []  # type: List[TSpending]
-        self.debt_operations_list = []
+        self.debt_operations_list = []  # type: List[TDebtOperation]
 
-    def add_spending(self, spending: TSpending):
+    def get_person_by_name(self, person_name):
+        for p in self.persons_list:
+            if p.name == person_name:
+                return p
+        return None
+
+    def is_participant(self, person_name):
+        if isinstance(person_name, TPerson):
+            person_name = person_name.name
+
+        if self.get_person_by_name(person_name) is None:
+            return False
+        else:
+            return True
+
+    def add_spending(self, spending):
+        #  type: (TSpending) -> None
         if not spending.is_calculated():
             return
+
+        for c in spending.consumers_list:
+            if not self.is_participant(c.person.name):
+                return
 
         for sp in self.spending_list:
             if spending.date_time < sp.date_time:
@@ -122,21 +137,33 @@ class TBudget:
 
         self.spending_list.append(spending)
 
-    def add_person(self, person: TPerson):
-        if ~self.persons_list.__contains__(person):
-            self.persons_list.append(person)
+    def add_person(self, person):
+        #  type: (TPerson) -> None
+        if self.is_participant(person.name):
+            return
+
+        if person.weight < 0:
+            return
+
+        self.persons_list.append(person)
 
     # Возвращает список всех расходов person
-    def get_spending_list_for_person(self, person):
+    def get_spending_list_for_person(self, person_name):
+        if isinstance(person_name, TPerson):
+            person_name = person_name.name
+
         sp_list = []
         for sp in self.spending_list:
-            if sp.payer.name() == person.name():
+            if sp.payer.name == person_name:
                 sp_list.append(sp)
         return sp_list
 
     # Возвращает сумму всех расходов person
-    def get_spending_amount_for_person(self, person):
-        sp_list = self.get_spending_list_for_person(person)
+    def get_spending_amount_for_person(self, person_name):
+        if isinstance(person_name, TPerson):
+            person_name = person_name.name
+
+        sp_list = self.get_spending_list_for_person(person_name)
         s = 0.00
         for sp in sp_list:
             s += sp.amount
@@ -150,16 +177,22 @@ class TBudget:
         return s
 
     # Возвращает список потребления person
-    def get_consumption_list_for_person(self, person):
+    def get_consumption_list_for_person(self, person_name):
+        if isinstance(person_name, TPerson):
+            person_name = person_name.name
+
         c_list = []
         for spending in self.spending_list:
-            if spending.is_participant(person):
-                c_list.append(spending.get_consumption_for_person(person))
+            if spending.is_participant(person_name):
+                c_list.append(spending.get_consumption_for_person(person_name))
         return c_list
 
     # Возвращает сумму потребления person
-    def get_consumption_amount_for_person(self, person):
-        c_list = self.get_consumption_list_for_person(person)
+    def get_consumption_amount_for_person(self, person_name):
+        if isinstance(person_name, TPerson):
+            person_name = person_name.name
+
+        c_list = self.get_consumption_list_for_person(person_name)
         am = 0.00
         for c in c_list:
             am += c.amount
@@ -169,29 +202,37 @@ class TBudget:
     def get_consumption_amount_total(self):
         c = 0
         for p in self.persons_list:
-            c += self.get_consumption_amount_for_person(p)
+            c += self.get_consumption_amount_for_person(p.name)
 
         return c
 
-    def get_person_name_who_pays_for(self, person: TPerson):
+    def get_person_name_who_pays_for(self, person_name):
+        if isinstance(person_name, TPerson):
+            person_name = person_name.name
+
         for p in self.persons_list:
-            if p.pays_for == person.name():
-                return p.name()
+            if p.pays_for == person_name:
+                return p.name
 
         return ''
 
     # Рассчитывает долг person. Положительная величина
     # означает, что person потребил больше, чем потратил
-    def get_debt_for_person(self, person):
-        debt_own = self.get_consumption_amount_for_person(person) - \
-                   self.get_spending_amount_for_person(person)
+    def get_debt_for_person(self, person_name):
+        if isinstance(person_name, TPerson):
+            person_name = person_name.name
+
+        debt_own = self.get_consumption_amount_for_person(person_name) - \
+            self.get_spending_amount_for_person(person_name)
 
         # Если за person кто-то платит и person кому-то должен
-        if self.get_person_name_who_pays_for(person) != '' and debt_own > 0:
+        if self.get_person_name_who_pays_for(person_name) != '' and debt_own > 0:
             return 0.0
 
-        if person.pays_for != '':
-            person_for = self.get_person_by_name(person.pays_for)
+        p = self.get_person_by_name(person_name)
+
+        if p.pays_for != '':
+            person_for = p.pays_for
             debt_for = self.get_consumption_amount_for_person(person_for) - \
                 self.get_spending_amount_for_person(person_for)
             if debt_for > 0.0:
@@ -199,29 +240,18 @@ class TBudget:
 
         return debt_own
 
-    def get_person_by_name(self, name):
-        for p in self.persons_list:
-            if p.name() == name:
-                return p
-        return None
-
-    def is_participant(self, name):
-        if self.get_person_by_name(name) is None:
-            return False
-        else:
-            return True
 
     def get_debt_sum(self):
         s = 0
         for p in self.persons_list:
-            s += self.get_debt_for_person(p)
+            s += self.get_debt_for_person(p.name)
 
         return s
 
     def get_positive_debt_sum(self):
         s = 0
         for p in self.persons_list:
-            s1 = self.get_debt_for_person(p)
+            s1 = self.get_debt_for_person(p.name)
             if s1 > 0:
                 s += s1
 
@@ -245,7 +275,7 @@ class TBudget:
         debtors_amount_list = []
         creditors_amount_list = []
         for p in self.persons_list:
-            d = self.get_debt_for_person(p)
+            d = self.get_debt_for_person(p.name)
             if d > 0:
                 debtors_list.append(p)
                 debtors_amount_list.append(d)

@@ -58,7 +58,7 @@ def edit_budget_add_spending(budget_file=None):
     if budget is None:
         return 'Не найден файл бюджета' + budget_file
 
-    app.current_spending = b.TSpending('', b.TPerson(''), 0)
+    app.current_spending = b.TSpending(b.TPerson(''), '', 0)
 
     return render_template('editspending.html',  budget=budget, budget_file=budget_file, spending=app.current_spending)
 
