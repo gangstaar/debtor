@@ -2,6 +2,9 @@
 from typing import List
 import random as rnd
 import math
+from datetime import datetime as dt, datetime
+
+date_time_format = '%d.%m.%Y %H:%M:%S'
 
 
 class TPerson:
@@ -39,11 +42,12 @@ class TConsumer:
 
 
 class TSpending:
-    def __init__(self, memo='', payer=TPerson(), amount=0.0):
+    def __init__(self, memo='', payer=TPerson(), amount=0.0, date_time=dt(2019, 1, 1, 0, 0, 0)):
         self.memo = memo
-        self.payer = payer
+        self.payer = payer  # type: TPerson
         self.amount = amount
-        self.consumers_list = []
+        self.consumers_list = []  # type: List[TConsumer]
+        self.date_time = date_time  # type: datetime
 
     def add_consumer(self, person, amount=0.00):
         if isinstance(person, List):
@@ -104,12 +108,19 @@ class TBudget:
     def __init__(self, memo=''):
         self.memo = memo
         self.persons_list = []
-        self.spending_list = []
+        self.spending_list = []  # type: List[TSpending]
         self.debt_operations_list = []
 
     def add_spending(self, spending: TSpending):
-        if spending.is_calculated():
-            self.spending_list.append(spending)
+        if not spending.is_calculated():
+            return
+
+        for sp in self.spending_list:
+            if spending.date_time < sp.date_time:
+                self.spending_list.insert(self.spending_list.index(sp), spending)
+                return
+
+        self.spending_list.append(spending)
 
     def add_person(self, person: TPerson):
         if ~self.persons_list.__contains__(person):

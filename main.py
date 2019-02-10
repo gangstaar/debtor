@@ -3,8 +3,6 @@ import budget.types as b
 from flask import Flask, render_template, g, request, flash
 from views.budget import bp as editbudget
 
-# budget = bio.get_test_budget()
-# bio.print_report(budget)
 
 app = Flask(__name__, static_url_path='/debtor/static')
 app.config.from_mapping(SECRET_KEY='deva')

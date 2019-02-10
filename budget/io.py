@@ -2,7 +2,9 @@ from budget.types import TBudget
 from budget.types import TPerson
 from budget.types import TSpending
 from budget.types import TDebtOperation
+from budget.types import date_time_format as dtf
 import pathlib
+from datetime import datetime as dt
 
 
 def get_report(budget, is_long=False):
@@ -18,7 +20,8 @@ def get_report(budget, is_long=False):
     rep.append("Зафиксировано операций на сумму " + '{0:7.2f}'.format(budget.get_spending_amount_total()) + " Р:")
     for s in budget.spending_list:
         n = s.payer.name() + ';'
-        line = '    ' + '{0:8.2f}'.format(s.amount) + ' Р за ' + '{0:20s}'.format(s.memo) + ' заплатил ' + '{0:8s}'.format(n)
+        line = '    ' + s.date_time.strftime('%d.%m.%Y %H:%M') + ' {0:8.2f}'.format(s.amount) + \
+               ' Р за ' + '{0:20s}'.format(s.memo) + ' заплатил ' + '{0:8s}'.format(n)
 
         names = []
         for c in s.consumers_list:
@@ -235,77 +238,77 @@ def get_test_budget():
     budget.add_person(TPerson('Сергей', 1.0, 'Оля К'))
     budget.add_person(TPerson('Оля К', 0.5))
 
-    s = TSpending('Билеты в пещеру', budget.get_person_by_name("Гошан"), 8400)
+    s = TSpending('Лемончелла', budget.get_person_by_name("Гошан"), 1850, dt(2018, 12, 28, 13, 0, 0))
     s.add_consumer(budget.persons_list)
     s.calc_weighted()
     budget.add_spending(s)
 
-    s = TSpending('Такси', budget.get_person_by_name("Гошан"), 588)
+    s = TSpending('Калуа+', budget.get_person_by_name("Алексей"), 4800, dt(2018, 12, 28, 14, 0, 0))
     s.add_consumer(budget.persons_list)
     s.calc_weighted()
     budget.add_spending(s)
 
-    s = TSpending('Автобус', budget.get_person_by_name("Гошан"), 50)
+    s = TSpending('Джин Ягер Ром', budget.get_person_by_name("Наташа"), 5768, dt(2018, 12, 28, 15, 0, 0))
     s.add_consumer(budget.persons_list)
     s.calc_weighted()
     budget.add_spending(s)
 
-    s = TSpending('Ашан', budget.get_person_by_name("Гошан"), 35)
+    s = TSpending('Такси', budget.get_person_by_name("Гошан"), 588, dt(2018, 12, 31, 17, 0, 0))
     s.add_consumer(budget.persons_list)
     s.calc_weighted()
     budget.add_spending(s)
 
-    s = TSpending('Лемончелла', budget.get_person_by_name("Гошан"), 1850)
+    s = TSpending('Такси', budget.get_person_by_name("Сергей"), 450, dt(2018, 12, 31, 17, 31, 0))
     s.add_consumer(budget.persons_list)
     s.calc_weighted()
     budget.add_spending(s)
 
-    s = TSpending('КХ', budget.get_person_by_name("Гошан"), 170)
+    s = TSpending('Ашан', budget.get_person_by_name("Вадим Н"), 10740, dt(2018, 12, 31, 17, 15, 0))
     s.add_consumer(budget.persons_list)
     s.calc_weighted()
     budget.add_spending(s)
 
-    s = TSpending('Такси', budget.get_person_by_name("Вадюха"), 500)
+    s = TSpending('Ашан', budget.get_person_by_name("Гошан"), 35, dt(2018, 12, 31, 17, 25, 0))
     s.add_consumer(budget.persons_list)
     s.calc_weighted()
     budget.add_spending(s)
 
-    s = TSpending('Такси', budget.get_person_by_name("Валёк"), 460)
+    s = TSpending('Автобус', budget.get_person_by_name("Гошан"), 50, dt(2019, 1, 2, 9, 0, 0))
     s.add_consumer(budget.persons_list)
     s.calc_weighted()
     budget.add_spending(s)
 
-    s = TSpending('Такси', budget.get_person_by_name("Сергей"), 450)
+    s = TSpending('Билеты в пещеру', budget.get_person_by_name("Гошан"), 8400, dt(2019, 1, 2, 13, 0, 0))
     s.add_consumer(budget.persons_list)
     s.calc_weighted()
     budget.add_spending(s)
 
-    s = TSpending('Автобус', budget.get_person_by_name("Сергей"), 250)
+    s = TSpending('Автобус', budget.get_person_by_name("Сергей"), 250, dt(2019, 1, 2, 20, 0, 0))
     s.add_consumer(budget.persons_list)
     s.calc_weighted()
     budget.add_spending(s)
 
-    s = TSpending('На всё про всё', budget.get_person_by_name("Артём"), 18870)
+    s = TSpending('Такси', budget.get_person_by_name("Вадюха"), 500, dt(2019, 1, 4, 10, 0, 0))
     s.add_consumer(budget.persons_list)
     s.calc_weighted()
     budget.add_spending(s)
 
-    s = TSpending('Джин Ягер Ром', budget.get_person_by_name("Наташа"), 5768)
+    s = TSpending('Такси', budget.get_person_by_name("Валёк"), 460, dt(2019, 1, 4, 10, 10, 0))
     s.add_consumer(budget.persons_list)
     s.calc_weighted()
     budget.add_spending(s)
 
-    s = TSpending('КХ', budget.get_person_by_name("Алексей"), 170)
+    s = TSpending('КХ', budget.get_person_by_name("Алексей"), 170, dt(2019, 1, 4, 12, 0, 0))
     s.add_consumer(budget.persons_list)
     s.calc_weighted()
     budget.add_spending(s)
 
-    s = TSpending('Калуа+', budget.get_person_by_name("Алексей"), 4800)
+    s = TSpending('КХ', budget.get_person_by_name("Гошан"), 170, dt(2019, 1, 4, 12, 0, 0))
     s.add_consumer(budget.persons_list)
     s.calc_weighted()
     budget.add_spending(s)
 
-    s = TSpending('Ашан', budget.get_person_by_name("Вадим Н"), 10740)
+    s = TSpending('На всё про всё', budget.get_person_by_name("Артём"), 18870, dt(2019, 1, 4, 15, 0, 0))
     s.add_consumer(budget.persons_list)
     s.calc_weighted()
     budget.add_spending(s)
@@ -341,6 +344,7 @@ def save_budget(budget: TBudget, file_name='budget.bdg'):
 
     for sp in budget.spending_list:
         f.write('\nSPENDING_MEMO = ' + '{0:20s}'.format(sp.memo))
+        f.write('\n SPENDING_DATETIME = ' + sp.date_time.strftime(dtf))
         f.write('\n SPENDING_PAYER_NAME = ' + '{0:10s}'.format(sp.payer.name()))
         f.write('\n SPENDING_AMOUNT = ' + '{0:12.6f}'.format(sp.amount))
         for p in sp.consumers_list:
@@ -390,13 +394,22 @@ def load_budget(file_name):
         else:
             memo = ''
         lin = f.readline().strip()
+        if lin.startswith('SPENDING_DATETIME'):
+            datetime = dt.strptime(lin.split(' = ')[1], dtf)
+            lin = f.readline().strip()
+        else:
+            datetime = None
+
         payer_name = lin.split(' = ')[1]
         lin = f.readline().strip()
         amount = float(lin.split(' = ')[1])
 
         payer = budget.get_person_by_name(payer_name)
 
-        spending = TSpending(memo, payer, amount)
+        if datetime is not None:
+            spending = TSpending(memo, payer, amount, datetime)
+        else:
+            spending = TSpending(memo, payer, amount)
 
         # Потребители
         lin = f.readline().strip()
