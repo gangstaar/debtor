@@ -1,6 +1,6 @@
 import budget.io as bio
 import budget.types as b
-from flask import Flask, render_template, g, request, flash, Blueprint
+from flask import Flask, render_template, g, request, flash
 from views.budget import bp as editbudget
 
 # budget = bio.get_test_budget()
@@ -23,31 +23,6 @@ def is_budget_exists(budget_name):
 
 @app.route('/debtor', methods=['POST', 'GET'])
 def main():
-    g.saved_budgets = bio.get_available_budgets('./saved_budgets')
-    if request.method == 'POST':
-        error = None
-        budget_file_name = request.form['budgetname']
-        if not budget_file_name.endswith('.bdg'):
-            budget_file_name += '.bdg'
-
-        if not budget_file_name:
-            error = 'Необходимо ввести имя бюджета.'
-
-        if budget_file_name in g.saved_budgets:
-            error = 'Бюджет с таким именем уже существует.'
-
-        if error is None:
-            bio.save_budget(b.TBudget(), './saved_budgets/' + budget_file_name)
-            g.saved_budgets = bio.get_available_budgets('./saved_budgets')
-            return render_template('index.html')
-
-        flash(error)
-
-    return render_template('index.html')
-
-
-@app.route('/debtor/', methods=['POST', 'GET'])
-def main2():
     g.saved_budgets = bio.get_available_budgets('./saved_budgets')
     if request.method == 'POST':
         error = None
@@ -110,10 +85,10 @@ def edit_budget_edit_spending(budget_file=None, spending_number='0'):
             app.current_spending = budget.spending_list.pop(index)
             budget.calc_debt_operations_list()
             bio.save_budget(budget, './saved_budgets/' + budget_file)
-            return render_template('editspending.html', budget=budget, budget_file=budget_file, spending=app.current_spending)
+            return render_template('editspending.html', budget=budget,
+                                   budget_file=budget_file, spending=app.current_spending)
 
     return render_template('edit.html', budget=budget, budget_file=budget_file)
-
 
 
 @app.route('/debtor/edit_budget=<budget_file>/edit_spending/remove_person=<consumer_number>', methods=['POST'])
@@ -133,7 +108,8 @@ def edit_spending_remove_person(budget_file=None, consumer_number=0):
         if index < len(app.current_spending.consumers_list):
             app.current_spending.consumers_list.pop(index)
 
-        return render_template('editspending.html', budget=budget, budget_file=budget_file, spending=app.current_spending)
+        return render_template('editspending.html', budget=budget,
+                               budget_file=budget_file, spending=app.current_spending)
 
     return 'Ошибка'
 
@@ -155,70 +131,10 @@ def edit_spending_add_person(budget_file=None):
             person = budget.get_person_by_name(request.form['name'])
             if person is not None:
                 app.current_spending.add_consumer(person, float(request.form['amount']))
-                return render_template('editspending.html',  budget=budget, budget_file=budget_file, spending=app.current_spending)
+                return render_template('editspending.html',  budget=budget,
+                                       budget_file=budget_file, spending=app.current_spending)
 
     return 'Ошибка'
-
-
-# @app.route('/debtor/edit_budget=<budget_file>/edit_spending/edit_sum', methods=['POST'])
-# def edit_spending_edit_sum(budget_file=None):
-#     g.saved_budgets = bio.get_available_budgets('./saved_budgets')
-#     budget = None
-#     if is_budget_exists(budget_file):
-#         budget = bio.load_budget('./saved_budgets/' + budget_file)
-#     if budget is None:
-#         return 'Не найден файл бюджета' + budget_file
-#
-#     if app.current_spending is None:
-#         return 'Потеряна текущая трата. Вернитесь на главную страницу.'
-#
-#     if request.method == 'POST':
-#         app.current_spending.amount = float(request.form['spendingamount'])
-#         return render_template('editspending.html', budget=budget, budget_file=budget_file,
-#                                spending=app.current_spending)
-#     return 'Ошибка'
-#
-#
-# @app.route('/debtor/edit_budget=<budget_file>/edit_spending/edit_memo', methods = ['POST'])
-# def edit_spending_edit_memo(budget_file=None):
-#     g.saved_budgets = bio.get_available_budgets('./saved_budgets')
-#     budget = None
-#     if is_budget_exists(budget_file):
-#         budget = bio.load_budget('./saved_budgets/' + budget_file)
-#     if budget is None:
-#         return 'Не найден файл бюджета' + budget_file
-#
-#     if app.current_spending is None:
-#         return 'Потеряна текущая трата. Вернитесь на главную страницу.'
-#
-#     if request.method == 'POST':
-#         app.current_spending.memo = request.form['spendingmemo']
-#         return render_template('editspending.html', budget=budget, budget_file=budget_file,
-#                                spending=app.current_spending)
-#
-#     return 'Ошибка'
-#
-#
-# @app.route('/debtor/edit_budget=<budget_file>/edit_spending/edit_payer', methods = ['POST'])
-# def edit_spending_edit_payer(budget_file=None):
-#     g.saved_budgets = bio.get_available_budgets('./saved_budgets')
-#     budget = None
-#     if is_budget_exists(budget_file):
-#         budget = bio.load_budget('./saved_budgets/' + budget_file)
-#     if budget is None:
-#         return 'Не найден файл бюджета' + budget_file
-#
-#     if app.current_spending is None:
-#         return 'Потеряна текущая трата. Вернитесь на главную страницу.'
-#
-#     if request.method == 'POST':
-#         person = budget.get_person_by_name(request.form['payer'])
-#         if person is not None:
-#             app.current_spending.payer = person
-#             return render_template('editspending.html', budget=budget, budget_file=budget_file,
-#                                    spending=app.current_spending)
-#
-#     return 'Ошибка'
 
 
 @app.route('/debtor/edit_budget=<budget_file>/edit_spending/edit_head', methods=['POST'])
@@ -260,7 +176,7 @@ def edit_spending_edit_head(budget_file=None):
     return 'Ошибка'
 
 
-@app.route('/debtor/edit_budget=<budget_file>/edit_spending/calc', methods = ['POST'])
+@app.route('/debtor/edit_budget=<budget_file>/edit_spending/calc', methods=['POST'])
 def edit_spending_calc(budget_file=None):
     g.saved_budgets = bio.get_available_budgets('./saved_budgets')
     budget = None
@@ -284,7 +200,7 @@ def edit_spending_calc(budget_file=None):
     return 'Ошибка'
 
 
-@app.route('/debtor/edit_budget=<budget_file>/edit_spending/ok', methods = ['POST'])
+@app.route('/debtor/edit_budget=<budget_file>/edit_spending/ok', methods=['POST'])
 def edit_spending_ok(budget_file=None):
     g.saved_budgets = bio.get_available_budgets('./saved_budgets')
     budget = None
