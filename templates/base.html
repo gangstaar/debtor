@@ -1,10 +1,11 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
+    <link href={{url_for('static', filename='floating-labels.css' )}}>
     <meta charset="UTF-8">
     <style type="text/css">
    .block1 {
-    font-size: 100%;
+    font-size: 120%;
     font-family: Verdana;
     width: 400px;
     margin-left: auto;
@@ -17,12 +18,13 @@
     font-family: Arial;
     font-color: gray;
     padding-top: 10px;
-    margin-left: 450px;
+    margin-left: 350px;
    }
 
    h1 {
    text-align: center;
-   font-family: consolas;
+   font-family: arial;
+   font-size: 150%;
    }
 
    h3 {
@@ -31,9 +33,30 @@
    }
 
     </style>
+
     <title>{% block title %}{% endblock %} - Должник</title>
 </head>
-<body style="font-family:Arial, Verdana, sans-serif;  font-size:1.5rem; ">
+<body style="font-family:Arial, Verdana, sans-serif;  font-size:1.0rem; ">
+
+<script>
+    function confirmDeleteBudget(event, budget_file)
+    {
+        if (!confirm('Удалить бюджет "' + budget_file + '" ?'))
+        {
+            event.preventDefault();
+        }
+        return false;
+    }
+    function confirmCopyBudget(event, budget_file)
+    {
+        if (!confirm('Создать копию бюджета "' + budget_file + '" ?'))
+        {
+            event.preventDefault();
+        }
+        return false;
+    }
+</script>
+
 <table cellpadding="15" border="0" rules="cols">
     <tr>
         <td valign="top">
@@ -44,17 +67,19 @@
                     {% for budget in g.saved_budgets %}
                     <tr>
                         <td valign="top" align="center">
-                            <a href="{{url_for('budget.print_budget', budget_file=budget)}}"
+                            <a href="{{url_for('print_budget', budget_file=budget)}}"
                                title="Посмотреть отчёт">{{budget[:-4]}}</a><br>
-                            <a href="{{url_for('budget.edit_budget', budget_file=budget)}}" title="Редактировать">
+                            <a href="{{url_for('edit_budget', budget_file=budget)}}" title="Редактировать">
                                 <img src={{url_for('static', filename='edit.png' )}} alt="Редактировать" border="0"
-                                     width="17" height="17"></a>
-                            <a href="{{url_for('budget.delete_budget', budget_file=budget)}}" title="Удалить">
+                                     ></a>
+                            <a href="{{url_for('delete_budget', budget_file=budget)}}" title="Удалить"
+                            onclick="confirmDeleteBudget(event,'{{budget}}')">
                                 <img src={{url_for('static', filename='cross.png' )}} alt="Удалить" border="0"
-                                     width="17" height="17"></a>
-                            <a href="{{url_for('budget.copy_budget', budget_file=budget)}}" title="Создать копию">
+                                     ></a>
+                            <a href="{{url_for('copy_budget', budget_file=budget)}}" title="Создать копию"
+                            onclick="confirmCopyBudget(event,'{{budget}}')">
                                 <img src={{url_for('static', filename='cpy.png' )}} alt="Создать копию" border="0"
-                                     width="17" height="17"></a>
+                                     ></a>
                         </td>
                     </tr>
                     {% endfor %}

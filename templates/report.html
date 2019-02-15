@@ -39,7 +39,7 @@
 <table border="1" cellpadding="5" rules="all">
     <tr align="center">
         <td rowspan="2"><b>Дата</b></td>
-        <td rowspan="2"><b>Время</b></td>
+        <!--<td rowspan="2"><b>Время</b></td>-->
         <td rowspan="2"><b>Сумма</b></td>
         <td rowspan="2"><b>Описание</b></td>
         <td rowspan="2"><b>Оплатил</b></td>
@@ -52,8 +52,8 @@
     </tr>
     {% for s in budget.spending_list %}
     <tr>
-        <td>{{s.date_time.strftime('%d.%m.%Y')}}</td>
-        <td>{{s.date_time.strftime('%H:%M')}}</td>
+        <td>{{s.get_date_s()}}</td>
+        <!--<td>{{s.date_time.strftime('%H:%M')}}</td>-->
         <td>{{s.amount}}</td>
         <td>{{s.memo}}</td>
         <td>{{s.payer.name}}</td>

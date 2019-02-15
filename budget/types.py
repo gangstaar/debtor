@@ -4,8 +4,6 @@ import random as rnd
 import math
 from datetime import datetime as dt, datetime
 
-date_time_format = '%d.%m.%Y %H:%M:%S'
-
 
 class TPerson:
     def __init__(self, name='', weight=1.0, pays_for=''):
@@ -36,6 +34,17 @@ class TSpending:
         self.amount = amount
         self.consumers_list = []  # type: List[TConsumer]
         self.date_time = date_time  # type: datetime
+
+    @staticmethod
+    def get_datetime_format_s():
+        return '%d.%m.%Y %H:%M:%S'
+
+    @staticmethod
+    def get_date_format_s():
+        return '%d.%m.%Y'
+
+    def get_date_s(self):
+        return self.date_time.strftime(self.get_date_format_s())
 
     def is_participant(self, person_name):
         if isinstance(person_name, TPerson):
@@ -117,6 +126,7 @@ class TBudget:
         self.persons_list = []  # type: List[TPerson]
         self.spending_list = []  # type: List[TSpending]
         self.debt_operations_list = []  # type: List[TDebtOperation]
+        self.current_spending = None  # type: TSpending
 
     def get_person_by_name(self, person_name):
         for p in self.persons_list:
@@ -252,7 +262,6 @@ class TBudget:
 
         return debt_own
 
-
     def get_debt_sum(self):
         s = 0
         for p in self.persons_list:
@@ -276,7 +285,14 @@ class TBudget:
         return s
 
     def is_converged(self):
-        if abs(self.get_debt_sum()) < 1e-2:
+
+        if len(self.debt_operations_list) == 0:
+            return False
+
+        eps_debt = abs(self.get_debt_sum())
+        eps_trans = abs(self.get_positive_debt_sum() - self.get_transaction_sum())
+
+        if (eps_debt < 1e-2) and (eps_trans < 1e-2):
             return True
         else:
             return False

@@ -3,13 +3,18 @@
 {% block header %}
 <h1>
 {% block title %}
-Редактирование -
+    "
 {% if budget_file %}
     {{budget_file[:-4]}}
 {% else %}
-    не выбран
+    Файл не выбран
 {% endif %}
-    - Добавление траты
+    "
+    {% if index == -1%}
+    - Новая трата
+    {% else %}
+    - Трата № {{index+1}}
+    {% endif %}
 {% endblock %}
 </h1>
 {% endblock %}
@@ -19,12 +24,15 @@
 
 
 <form name="editspendinghead" method="post" id="editspendinghead"
-      action="{{url_for('edit_spending_edit_head', budget_file=budget_file)}}">
+      action="{{url_for('spending.edit_head')}}">
     <table border="0" cellpadding="3" rules="rows">
         <tr>
-            <td><b>Сумма</b></td><td><b>Описание</b></td><td><b>Оплатил</b></td>
+            <td><b>Дата</b></td><td><b>Сумма</b></td><td><b>Описание</b></td><td><b>Оплатил</b></td>
         </tr>
         <tr>
+            <td>
+                <input name="spendingdate" type="date" value="{{spending.get_date_s()}}" size="10">
+            </td>
             <td>
                 <input name="spendingamount" type="text" value="{{spending.amount}}" size="10">
             </td>
@@ -33,7 +41,10 @@
             </td>
             <td>
                 <select name="spendingpayer" form="editspendinghead">
-                    {% for person in budget.persons_list %}<option>{{person.name}}</option>{% endfor %}
+                    <option></option>
+                    {% for person in budget.persons_list %}
+                    <option {% if person.name == spending.payer.name %} selected {% endif %} >{{person.name}}</option>
+                    {% endfor %}
                 </select>
             </td>
             <td>
@@ -44,7 +55,13 @@
 </form>
 
 
+{% if spending.amount > 0 %}
+
 <h3>Потребители</h3>
+
+
+
+<p></p>
 
 <table border="0" cellpadding="3" rules="rows">
     <tr>
@@ -58,7 +75,7 @@
         <td>{{c.person.name}}</td>
         <td>
             <form method="post" name="deleteperson"
-                  action="{{url_for('edit_spending_remove_person', budget_file=budget_file, consumer_number=spending.consumers_list.index(c))}}">
+                  action="{{url_for('spending.remove_person', consumer_number=spending.consumers_list.index(c))}}">
             <input type="image" src="{{url_for('static', filename='cross.png')}}"  alt="Удалить">
             </form>
         </td>
@@ -67,25 +84,26 @@
     {% if spending.is_calculated() %}
     {% else %}
     <tr>
-    <form method="post" name="addperson" id="addperson"
-          action="{{url_for('edit_spending_add_person', budget_file=budget_file)}}">
+    <form method="post" name="addperson" id="addpersonID"
+          action="{{url_for('spending.add_person')}}">
         <td>
             <input name="amount" type="text" size="10" value="0">
         </td>
         <td>
-            <select name="name" form="addperson">
+            <select name="name" form="addpersonID">
                 {% for person in budget.persons_list %}<option>{{person.name}}</option>{% endfor %}
             </select>
         </td>
         <td>
             <input name="addperson" type="image" src="{{url_for('static', filename='plus.png')}}"  alt="Добавить">
         </td>
+        <input name="addAll" type="submit" value="Потребляли все" form="addpersonID">
     </form>
     </tr>
     {% endif %}
 </table>
 <form method="post" name="calc"
-      action="{{url_for('edit_spending_calc', budget_file=budget_file)}}">
+      action="{{url_for('spending.calc')}}">
     <input name="aver" type="submit" value="Поровну" >
     <input name="weighted" type="submit" value="C весом" >
 </form>
@@ -95,17 +113,23 @@
 {% else %}
 <font color="red">Не распределённая сумма: {{spending.get_undistributed_value()}}</font>
 {% endif %}
+{% else %}
+<h5>
+Укажите сумму и оплатившего для добавления потребителей.
+</h5>
+{% endif %}
+
 <hr>
 <form method="post" name="ok"
-      action="{{url_for('edit_spending_ok', budget_file=budget_file)}}">
+      action="{{url_for('spending.submit', index=index)}}">
 <table>
     <tr>
         {% if spending.is_calculated() and budget.is_participant(spending.payer.name) %}
-        <td><input name="ok" type="submit" value="Добавить" ></td>
+        <td><input name="ok" type="submit" value="Ок" ></td>
         {% else %}
-        <td><input name="ok" type="submit" value="Добавить" disabled ></td>
+        <td><input name="ok" type="submit" value="Ок" disabled ></td>
         {% endif %}
-        <td><input name="cancel" type="submit" value="Удалить"></td>
+        <td><input name="cancel" type="submit" value="Отмена"></td>
     </tr>
 </table>
 </form>

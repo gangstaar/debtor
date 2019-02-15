@@ -2,7 +2,6 @@ from budget.types import TBudget
 from budget.types import TPerson
 from budget.types import TSpending
 from budget.types import TDebtOperation
-from budget.types import date_time_format as dtf
 import pathlib
 from datetime import datetime as dt
 
@@ -270,7 +269,7 @@ def get_test_budget():
     s.calc_weighted()
     budget.add_spending(s)
 
-    s = TSpending(budget.get_person_by_name("Гошан"), 'Ашан', 35, dt(2018, 12, 31, 17, 25, 0))
+    s = TSpending(budget.get_person_by_name("Гошан"), 'Ашан', 7035, dt(2018, 12, 31, 17, 25, 0))
     s.add_consumer(budget.persons_list)
     s.calc_weighted()
     budget.add_spending(s)
@@ -333,7 +332,8 @@ def get_available_budgets(directory_path='./'):
     return budgets_list
 
 
-def save_budget(budget: TBudget, file_name='budget.bdg'):
+def save_budget(budget, file_name='budget.bdg'):
+    #  type: (TBudget, str) -> None
     if len(file_name) < 4:
         pass
     if not file_name.endswith('.bdg'):
@@ -346,7 +346,16 @@ def save_budget(budget: TBudget, file_name='budget.bdg'):
 
     for sp in budget.spending_list:
         f.write('\nSPENDING_MEMO = ' + '{0:20s}'.format(sp.memo))
-        f.write('\n SPENDING_DATETIME = ' + sp.date_time.strftime(dtf))
+        f.write('\n SPENDING_DATETIME = ' + sp.date_time.strftime(TSpending.get_datetime_format_s()))
+        f.write('\n SPENDING_PAYER_NAME = ' + '{0:10s}'.format(sp.payer.name))
+        f.write('\n SPENDING_AMOUNT = ' + '{0:12.6f}'.format(sp.amount))
+        for p in sp.consumers_list:
+            f.write('\n ' + '{0:10s}'.format(p.person.name) + ' = ' + '{0:12.6f}'.format(p.amount))
+
+    if budget.current_spending is not None:
+        sp = budget.current_spending
+        f.write('\nC_SPENDING_MEMO = ' + '{0:20s}'.format(sp.memo))
+        f.write('\n SPENDING_DATETIME = ' + sp.date_time.strftime(TSpending.get_datetime_format_s()))
         f.write('\n SPENDING_PAYER_NAME = ' + '{0:10s}'.format(sp.payer.name))
         f.write('\n SPENDING_AMOUNT = ' + '{0:12.6f}'.format(sp.amount))
         for p in sp.consumers_list:
@@ -382,7 +391,7 @@ def load_budget(file_name):
 
     # Участники бюджета
     lin = f.readline().strip()
-    while (not lin.startswith('SPENDING_MEMO')) and (lin != ''):
+    while (not (lin.startswith('SPENDING_MEMO') or lin.startswith('C_SPENDING_MEMO'))) and (lin != ''):
         lin_spl = lin.split('=')
         p = TPerson(lin_spl[0].strip(), float(lin_spl[1]), lin_spl[2].strip())
         budget.persons_list.append(p)
@@ -391,22 +400,42 @@ def load_budget(file_name):
     # Траты
     while lin != '' and (not lin.startswith('DEBT_OPERATION')):
         lin = lin.split('=')
+
         if len(lin) > 1:
             memo = lin[1].strip()
         else:
             memo = ''
+
+        if lin[0].strip() == 'C_SPENDING_MEMO':
+            is_c_spending = True
+        else:
+            is_c_spending = False
+
         lin = f.readline().strip()
         if lin.startswith('SPENDING_DATETIME'):
-            datetime = dt.strptime(lin.split(' = ')[1], dtf)
+            datetime = dt.strptime(lin.split(' = ')[1], TSpending.get_datetime_format_s())
             lin = f.readline().strip()
         else:
             datetime = None
 
-        payer_name = lin.split(' = ')[1]
-        lin = f.readline().strip()
-        amount = float(lin.split(' = ')[1])
+        if not is_c_spending:
+            payer_name = lin.split(' = ')[1]
+            lin = f.readline().strip()
+            amount = float(lin.split(' = ')[1])
+            payer = budget.get_person_by_name(payer_name)
+        else:
+            if len(lin.split(' = ')) == 2:
+                payer_name = lin.split(' = ')[1]
+                payer = budget.get_person_by_name(payer_name)
+            else:
+                payer = TPerson()
 
-        payer = budget.get_person_by_name(payer_name)
+            lin = f.readline().strip()
+
+            if len(lin.split(' = ')) == 2:
+                amount = float(lin.split(' = ')[1])
+            else:
+                amount = 0
 
         if datetime is not None:
             spending = TSpending(payer, memo, amount, datetime)
@@ -415,14 +444,20 @@ def load_budget(file_name):
 
         # Потребители
         lin = f.readline().strip()
-        while (not lin.startswith('SPENDING_MEMO')) and (lin != '') and (not lin.startswith('DEBT_OPERATION')):
+        while (not(lin.startswith('SPENDING_MEMO') or
+                   lin.startswith('C_SPENDING_MEMO') or
+                   lin.startswith('DEBT_OPERATION')) and
+                (lin != '')):
             consumer_name = lin.split(' = ')[0].strip()
             amount = float(lin.split(' = ')[1])
             consumer = budget.get_person_by_name(consumer_name)
             spending.add_consumer(consumer, amount)
             lin = f.readline().strip()
 
-        budget.add_spending(spending)
+        if is_c_spending:
+            budget.current_spending = spending
+        else:
+            budget.add_spending(spending)
 
     while lin != '':
         lin = f.readline().strip()
@@ -441,3 +476,10 @@ def load_budget(file_name):
         lin = f.readline().strip()
     f.close()
     return budget
+
+def is_budget_exists(budget_name):
+    saved_budgets = get_available_budgets('./saved_budgets')
+    if budget_name in saved_budgets:
+        return True
+    else:
+        return False
