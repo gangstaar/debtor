@@ -22,6 +22,8 @@ def load_budgets():
 def main():
     session.clear()
 
+    g.test = '1'
+
     if request.method == 'POST':
         error = None
         budget_file_name = request.form['budgetname']

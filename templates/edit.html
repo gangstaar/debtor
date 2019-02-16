@@ -45,24 +45,7 @@
 
 <hr>
 
-<script>
-    function confirmDeletePerson(event, name)
-    {
-        if (!confirm('Удаление участника бюджета приведёт к очистке списка операций бюджета. Удалить участника по имени "'+name+'" ?'))
-        {
-            event.preventDefault();
-        }
-        return;
-    }
-
-    function confirmDeleteSpending(event, index)
-    {
-        if (!confirm('Удалить трату № ' + index + ' ?'))
-        {
-            event.preventDefault();
-        }
-        return;
-    }
+<script src="{{url_for('static', filename='confirmBudgetAction.js')}}">
 </script>
 
 <h3>Участники</h3>
