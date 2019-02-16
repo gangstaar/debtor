@@ -7,9 +7,8 @@ from views.spending import bp as editspending
 import os
 
 
-app = Flask(__name__)
+app = Flask(__name__, static_url_path='/debtor/static')
 app.config.from_mapping(SECRET_KEY='deva')
-app.static_folder = './static/debtor'
 app.register_blueprint(editbudget, url_prefix='/debtor/budget')
 app.register_blueprint(editspending, url_prefix='/debtor/budget/spending')
 
@@ -19,8 +18,7 @@ def load_budgets():
     g.saved_budgets = bio.get_available_budgets('./saved_budgets')
 
 
-# @app.route('/debtor/', methods=['POST', 'GET'])
-@app.route('/debtor', methods=['POST', 'GET'])
+@app.route('/debtor/', methods=['POST', 'GET'])
 def main():
     session.clear()
 
