@@ -7,12 +7,11 @@ from views.spending import bp as editspending
 import os
 
 
-app = Flask(__name__, static_url_path='/debtor/static')
+app = Flask(__name__)
 app.config.from_mapping(SECRET_KEY='deva')
 app.static_folder = './static/debtor'
 app.register_blueprint(editbudget, url_prefix='/debtor/budget')
 app.register_blueprint(editspending, url_prefix='/debtor/budget/spending')
-app.add_url_rule('/debtor/', endpoint='main')
 
 
 @app.before_request
@@ -20,11 +19,7 @@ def load_budgets():
     g.saved_budgets = bio.get_available_budgets('./saved_budgets')
 
 
-# @app.route('/debtor', methods=['POST', 'GET'])
-# def main2():
-#     return redirect(url_for('main'))
-
-
+# @app.route('/debtor/', methods=['POST', 'GET'])
 @app.route('/debtor', methods=['POST', 'GET'])
 def main():
     session.clear()
@@ -83,7 +78,7 @@ def copy_budget(budget_file=None):
     return redirect(url_for('main'))
 
 
-@app.route('/debtor/delete-budget=<budget_file>', methods=['POST','GET'])
+@app.route('/debtor/delete-budget=<budget_file>', methods=['POST', 'GET'])
 def delete_budget(budget_file=None):
     if (budget_file is not None) and (is_budget_exists(budget_file)):
         os.remove('./saved_budgets/' + budget_file)

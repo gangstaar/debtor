@@ -74,7 +74,7 @@ def edit_head():
     try:
         datetime = datetime.strptime(date, b.TSpending.get_date_format_s())
     except Exception:
-        return 'Неверная дата!'
+        return 'Неверная дата! Пожалуйста, введите дату в формате ДД.ММ.ГГГГ'
 
     g.budget.current_spending.amount = float(amount)
     g.budget.current_spending.memo = memo

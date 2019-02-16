@@ -10,7 +10,7 @@
         Веб-сервис поиска должников в компании. Для начала создайте новый бюджет или выберете
         существующий из списка на панели навигации.
     </p><br>
-    <form method="post">
+    <form method="post" action="{{url_for('main')}}">
         <input name="budgetname" id="budgetname" style="font-size:120%"
         class="form-control" placeholder="Имя файла" required>
         <p>
