@@ -48,7 +48,7 @@
                 </select>
             </td>
             <td>
-                <input type="image" alt="Ок" src="{{url_for('static', filename='ok.png')}}">
+                <input type="image" alt="Ок" src="{{url_for('static', filename='ok.png')}}" class="pictobutton">
             </td>
         </tr>
     </table>
@@ -76,7 +76,7 @@
         <td>
             <form method="post" name="deleteperson"
                   action="{{url_for('spending.remove_person', consumer_number=spending.consumers_list.index(c))}}">
-            <input type="image" src="{{url_for('static', filename='cross.png')}}"  alt="Удалить">
+            <input type="image" src="{{url_for('static', filename='cross.png')}}"  alt="Удалить" class="pictobutton">
             </form>
         </td>
     </tr>
@@ -95,17 +95,18 @@
             </select>
         </td>
         <td>
-            <input name="addperson" type="image" src="{{url_for('static', filename='plus.png')}}"  alt="Добавить">
+            <input name="addperson" type="image" src="{{url_for('static', filename='plus.png')}}" alt="Добавить"
+                   class="pictobutton">
         </td>
-        <input name="addAll" type="submit" value="Потребляли все" form="addpersonID">
+        <input name="addAll" type="submit" value="Потребляли все" form="addpersonID" class="button">
     </form>
     </tr>
     {% endif %}
 </table>
 <form method="post" name="calc"
       action="{{url_for('spending.calc')}}">
-    <input name="aver" type="submit" value="Поровну" >
-    <input name="weighted" type="submit" value="C весом" >
+    <input name="aver" type="submit" value="Поровну" class="button">
+    <input name="weighted" type="submit" value="C весом" class="button">
 </form>
 <hr>
 {% if spending.is_calculated() %}
@@ -125,11 +126,11 @@
 <table>
     <tr>
         {% if spending.is_calculated() and budget.is_participant(spending.payer.name) %}
-        <td><input name="ok" type="submit" value="Ок" ></td>
+        <td><input name="ok" type="submit" value="Ок" class="button"></td>
         {% else %}
-        <td><input name="ok" type="submit" value="Ок" disabled ></td>
+        <td><input name="ok" type="submit" value="Ок" disabled class="button"></td>
         {% endif %}
-        <td><input name="cancel" type="submit" value="Отмена"></td>
+        <td><input name="cancel" type="submit" value="Отмена" class="button"></td>
     </tr>
 </table>
 </form>

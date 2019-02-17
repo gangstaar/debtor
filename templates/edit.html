@@ -23,7 +23,7 @@
               action="{{url_for('budget.edit_file_name')}}">
             <td><input name="filename" value="{{budget_file[:-4]}}" style="font-size:120%" size="20"></td>
             </td>
-            <td><input type="image" src="{{url_for('static', filename='ok.png')}}" alt="Ок"></td>
+            <td><input type="image" src="{{url_for('static', filename='ok.png')}}" alt="Ок" class="pictobutton"></td>
         </form>
     </tr>
 </table>
@@ -38,15 +38,12 @@
               action="{{url_for('budget.edit_memo')}}">
             <td><input name="memo" value="{{budget.memo}}" style="font-size:120%" size="30"></td>
             </td>
-            <td><input type="image" src="{{url_for('static', filename='ok.png')}}" alt="Ок"></td>
+            <td><input type="image" src="{{url_for('static', filename='ok.png')}}" alt="Ок" class="pictobutton"></td>
         </form>
     </tr>
 </table>
 
 <hr>
-
-<script src="{{url_for('static', filename='confirmBudgetAction.js')}}">
-</script>
 
 <h3>Участники</h3>
 
@@ -64,11 +61,12 @@
         <td>{{person.pays_for}}</td>
         <td>
             <form method="post" name="deleteperson"
-                  action="{{url_for('budget.remove_person', person_name=person.name)}}"
-                  onclick="confirmDeletePerson(event, '{{person.name}}')">
+                  action="{{url_for('budget.remove_person', person_name=person.name)}}">
             <input name="deleteperson{{g.budget.persons_list.index(person)}}"
                    type="image" alt="Удалить"
-                   src="{{url_for('static', filename='cross.png')}}">
+                   src="{{url_for('static', filename='cross.png')}}"
+                   class="confirm-required pictobutton"
+                   message="Удаление участника бюджета приведёт к очистке списка операций бюджета. Удалить участника по имени &quot;{{person.name}}&quot; ?">
             </form>
         </td>
     </tr>
@@ -88,7 +86,9 @@
             </select>
         </td>
         <td>
-            <input name="addperson" type="image" src="{{url_for('static', filename='plus.png')}}"  alt="Добавить">
+            <input name="addperson" type="image" src="{{url_for('static', filename='plus.png')}}"  alt="Добавить"
+            class="confirm-required pictobutton"
+            message="Добавление участника бюджета приведёт к очистке списка операций бюджета. Добавить участника?">
         </td>
 
     </form>
@@ -113,7 +113,7 @@
               action="{{url_for('budget.edit_spending', spending_number=budget.spending_list.index(s))}}">
             <td>
                 <input name="editspending" type="image" alt="Редактировать"
-                       src="{{url_for('static', filename='edit.png')}}">
+                       src="{{url_for('static', filename='edit.png')}}" class="pictobutton">
             </td>
             <td width="20">{{g.budget.spending_list.index(s)+1}}</td>
             <td>{{s.date_time.strftime('%d.%m.%y')}}</td>
@@ -123,7 +123,8 @@
             <td>
                 <input name="deletespending" type="image" alt="Удалить"
                        src="{{url_for('static', filename='cross.png')}}"
-                onclick="confirmDeleteSpending(event,'{{budget.spending_list.index(s)+1}}')">
+                       class="confirm-required pictobutton"
+                       message="Удалить трату № {{budget.spending_list.index(s)+1}} ?">
             </td>
         </form>
     </tr>
@@ -137,7 +138,8 @@
         <td></td>
         <td></td>
         <td>
-            <input name="addspending" type="image"  alt="Добавить" src="{{url_for('static', filename='plus.png')}}">
+            <input name="addspending" type="image"  alt="Добавить" src="{{url_for('static', filename='plus.png')}}"
+                   class="pictobutton">
         </td>
 
     </form>
@@ -154,8 +156,8 @@
     <table cellpadding="2">
         <tr align="center">
             <td><b>Алгоритм расчёта:</b></td>
-            <td><input name="simple" type="submit" value="Простой"></td>
-            <td><input name="monte-carlo" type="submit" value="Монте-Карло"></td>
+            <td><input name="simple" type="submit" value="Простой" class="button"></td>
+            <td><input name="monte-carlo" type="submit" value="Монте-Карло" class="button"></td>
         </tr>
         <tr>
             <td colspan="3"> </td>
@@ -174,8 +176,5 @@
 {% endif %}
 
 <hr>
-
-
-
 
 {% endblock %}
