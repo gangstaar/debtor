@@ -2,11 +2,12 @@
 <html lang="ru">
 <head>
     <link href={{url_for('static', filename='floating-labels.css' )}}>
+    <link rel="stylesheet" type="text/css" href={{url_for('static', filename='bootstrap.min.css' )}}>
     <meta charset="UTF-8">
     <style type="text/css">
    .block1 {
     font-size: 120%;
-    font-family: Verdana;
+    #font-family: Verdana;
     width: 400px;
     margin-left: auto;
     margin-right: auto;
@@ -15,15 +16,15 @@
    }
    .footer {
     font-size: 60%;
-    font-family: Arial;
-    font-color: gray;
+    #font-family: Arial;
+    #font-color: gray;
     padding-top: 10px;
     margin-left: 350px;
    }
 
    h1 {
    text-align: center;
-   font-family: arial;
+   #font-family: arial;
    font-size: 150%;
    }
 
@@ -47,7 +48,7 @@
 
     <title>{% block title %}{% endblock %} - Должник</title>
 </head>
-<body style="font-family:Arial, Verdana, sans-serif;  font-size:1.0rem; ">
+<body>
 
 <table cellpadding="15" border="0" rules="cols">
     <tr>
