@@ -16,6 +16,7 @@ app.register_blueprint(editspending, url_prefix='/debtor/budget/spending')
 @app.before_request
 def load_budgets():
     g.saved_budgets = bio.get_available_budgets('./saved_budgets')
+    g.budget_file = ''
 
 
 @app.route('/debtor/', methods=['POST', 'GET'])
