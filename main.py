@@ -16,14 +16,13 @@ app.register_blueprint(editspending, url_prefix='/debtor/budget/spending')
 @app.before_request
 def load_budgets():
     g.saved_budgets = bio.get_available_budgets('./saved_budgets')
-    g.budget_file = ''
 
 
 @app.route('/debtor/', methods=['POST', 'GET'])
 def main():
     session.clear()
 
-    g.test = '1'
+    g.budget_file = ''
 
     if request.method == 'POST':
         error = None
@@ -66,6 +65,7 @@ def print_budget(budget_file=None):
         return redirect(url_for('main'))
 
     budget = bio.load_budget('./saved_budgets/' + budget_file)
+    g.budget_file = budget_file
 
     return render_template('report.html', budget=budget, budget_file=budget_file)
 

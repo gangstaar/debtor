@@ -1,113 +1,75 @@
 {% extends 'base.html' %}
 
 {% block header %}
-<h1>
+<h3 class="text-info text-">
 {% block title %}
-"
 {% if budget_file %}
-    {{budget_file[:-4]}}
+    Бюджет "{{budget_file[:-4]}}"
 {% else %}
-    Файл не выбран
+    Бюджет не выбран
 {% endif %}
-"
 {% endblock %}
-</h1>
+</h3>
 {% endblock %}
 
 {% block content %}
-<hr>
-<table>
-    <tr>
-        <td>Имя файла: </td>
-        <form method="post" name="editbudgetfilename"
-              action="{{url_for('budget.edit_file_name')}}">
-            <td><input name="filename" value="{{budget_file[:-4]}}" style="font-size:120%" size="20"></td>
-            </td>
-            <td><input type="image" src="{{url_for('static', filename='ok.png')}}" alt="Ок" class="pictobutton"></td>
-        </form>
-    </tr>
-</table>
-<hr>
-<h3></h3>
-<table>
-    <tr>
-        <td>
-          Описание:
-        </td>
-        <form method="post" name="editbudgetmemo"
-              action="{{url_for('budget.edit_memo')}}">
-            <td><input name="memo" value="{{budget.memo}}" style="font-size:120%" size="30"></td>
-            </td>
-            <td><input type="image" src="{{url_for('static', filename='ok.png')}}" alt="Ок" class="pictobutton"></td>
-        </form>
-    </tr>
-</table>
 
-<hr>
+<div class="d-flex flex-row">
+    <form class="d-flex flex-row align-items-end px-1"
+          method="post" name="editbudgetfilename"
+          action="{{url_for('budget.edit_file_name')}}">
+        <div class="form-group px-1">
+            <label for="filename">Имя файла</label>
+            <input class="form-control" id="filename" name="filename" value="{{budget_file[:-4]}}" size="10">
+        </div>
+        <div class="form-group">
+            <input type="image" src="{{url_for('static', filename='ok.png')}}" alt="Ок" class="pictobutton">
+            <!--<input type="submit" class="btn btn-primary" value="Ок">-->
+        </div>
+    </form>
+    <form class="d-flex flex-row align-items-end px-1"
+          method="post" name="editbudgetmemo"
+          action="{{url_for('budget.edit_memo')}}">
+        <div class="form-group px-1">
+            <label for="memo">Описание</label>
+            <input class="form-control" id="memo" name="memo" value="{{budget.memo}}" size="20">
+        </div>
+        <div class="form-group">
+            <input type="image" src="{{url_for('static', filename='ok.png')}}" alt="Ок" class="pictobutton">
+            <!--<input type="submit" class="btn btn-primary" value="Ок">-->
+        </div>
+    </form>
+</div>
 
-<h3>Участники</h3>
+<h4 class="text-center pt-2">Траты</h4>
 
-<table border="0" cellpadding="3" rules="rows">
-    <tr>
-        <td><b>Имя</b></td>
-        <td><b>Вес</b></td>
-        <td><b>Платит за</b></td>
+<table class="table table-striped table-sm table-responsive-sm">
+    <thead class="thead-light">
+        <tr>
+            <th></th>
+            <th>N</th>
+            <th width="100">Дата</th>
+            <th>Сумма</th>
+            <th>Описание</th>
+            <th>Оплатил</th>
+            <th></th>
+        </tr>
+    </thead>
+    <form method="post" name="addspending"
+          action="{{url_for('budget.add_spending')}}">
         <td></td>
-    </tr>
-    {% for person in g.budget.persons_list %}
-    <tr>
-        <td>{{person.name}}</td>
-        <td>{{person.weight}}</td>
-        <td>{{person.pays_for}}</td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
         <td>
-            <form method="post" name="deleteperson"
-                  action="{{url_for('budget.remove_person', person_name=person.name)}}">
-            <input name="deleteperson{{g.budget.persons_list.index(person)}}"
-                   type="image" alt="Удалить"
-                   src="{{url_for('static', filename='cross.png')}}"
-                   class="confirm-required pictobutton"
-                   message="Удаление участника бюджета приведёт к очистке списка операций бюджета. Удалить участника по имени &quot;{{person.name}}&quot; ?">
-            </form>
-        </td>
-    </tr>
-    {% endfor %}
-    <form method="post" name="addperson" id="addperson"
-          action="{{url_for('budget.add_person')}}">
-        <td>
-            <input name="name" type="text" size="10">
-        </td>
-        <td>
-            <input name="weight" type="text" size="5" value="1.0">
-        </td>
-        <td>
-            <select name="paysfor" form="addperson">
-                <option></option>
-            {% for person in g.budget.persons_list %}<option>{{person.name}}</option>{% endfor %}
-            </select>
-        </td>
-        <td>
-            <input name="addperson" type="image" src="{{url_for('static', filename='plus.png')}}"  alt="Добавить"
-            class="confirm-required pictobutton"
-            message="Добавление участника бюджета приведёт к очистке списка операций бюджета. Добавить участника?">
+            <input name="addspending" type="image"  alt="Добавить" src="{{url_for('static', filename='plus.png')}}"
+                   class="pictobutton">
         </td>
 
     </form>
-</table>
-
-<hr>
-
-<h3>Операции</h3>
-
-<table border="0" cellpadding="5" rules="rows">
-    <tr align="left">
-        <td></td>
-        <td><b>N</b></td>
-        <td width="100"><b>Дата</b></td>
-        <td><b>Сумма</b></td>
-        <td><b>Описание</b></td>
-        <td><b>Оплатил</b></td>
-    </tr>
-    {% for s in g.budget.spending_list %}
+    {% for s in g.budget.spending_list.__reversed__() %}
     <tr>
         <form method="post" name="spendingoperation"
               action="{{url_for('budget.edit_spending', spending_number=budget.spending_list.index(s))}}">
@@ -129,52 +91,99 @@
         </form>
     </tr>
     {% endfor %}
-    <form method="post" name="addspending"
-          action="{{url_for('budget.add_spending')}}">
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td>
-            <input name="addspending" type="image"  alt="Добавить" src="{{url_for('static', filename='plus.png')}}"
-                   class="pictobutton">
-        </td>
+</table>
 
-    </form>
+<h4 class="text-center">Участники</h4>
+
+<table class="table table-striped table-sm table-responsive-sm">
+    <thead class="thead-light">
+        <tr>
+            <th>Имя</th>
+            <th>Вес</th>
+            <th>Платит за</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for person in g.budget.persons_list %}
+        <tr>
+            <td>{{person.name}}</td>
+            <td>{{person.weight}}</td>
+            <td>{{person.pays_for}}</td>
+            <td>
+                <form class=""
+                      method="post" name="deleteperson"
+                      action="{{url_for('budget.remove_person', person_name=person.name)}}">
+                    {% if g.budget.spending_list.__len__() == 0 %}
+                    <input name="deleteperson{{g.budget.persons_list.index(person)}}"
+                           type="image" alt="Удалить"
+                           src="{{url_for('static', filename='cross.png')}}"
+                           class="confirm-required pictobutton"
+                           message="Удалить участника по имени &quot;{{person.name}}&quot; ?">
+                    {% else %}
+                    <input name="deleteperson{{g.budget.persons_list.index(person)}}"
+                           type="image" alt="Удалить"
+                           src="{{url_for('static', filename='cross.png')}}"
+                           class="confirm-required pictobutton"
+                           message="Удаление участника бюджета приведёт к очистке списка операций бюджета. Удалить участника по имени &quot;{{person.name}}&quot; ?">
+                    {% endif%}
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+        <form class="form-group"
+              method="post" name="addperson" id="addperson"
+              action="{{url_for('budget.add_person')}}">
+            <td>
+                <input class="form-control" name="name" type="text" size="8">
+            </td>
+            <td>
+                <input class="form-control" name="weight" type="text" size="2" value="1.0">
+            </td>
+            <td>
+                <select class="form-control" name="paysfor" form="addperson">
+                    <option></option>
+                {% for person in g.budget.persons_list %}<option>{{person.name}}</option>{% endfor %}
+                </select>
+            </td>
+            <td>
+                {% if g.budget.spending_list.__len__() == 0 %}
+                <input name="addperson" type="image" src="{{url_for('static', filename='plus.png')}}"  alt="Добавить"
+                class="pictobutton">
+                {% else %}
+                <input name="addperson" type="image" src="{{url_for('static', filename='plus.png')}}"  alt="Добавить"
+                class="confirm-required pictobutton"
+                message="Добавление участника бюджета приведёт к очистке списка операций бюджета. Добавить участника?">
+                {% endif%}
+            </td>
+        </form>
+    </tbody>
 </table>
 
 {% if g.budget.debt_operations_list.__len__() > 0 %}
-<hr>
+<h4 class="text-center pt-2">Долги</h4>
 
-<h3>Транзакции</h3>
-
-<form method="post" name="calculatebuttons"
-      action="{{url_for('budget.calculate')}}">
-
-    <table cellpadding="2">
-        <tr align="center">
-            <td><b>Алгоритм расчёта:</b></td>
-            <td><input name="simple" type="submit" value="Простой" class="button"></td>
-            <td><input name="monte-carlo" type="submit" value="Монте-Карло" class="button"></td>
-        </tr>
-        <tr>
-            <td colspan="3"> </td>
-        </tr>
-    </table>
-</form>
-
-
-<table cellpadding="5">
+<table class="table table-striped table-sm table-responsive-sm">
     {% for op in g.budget.debt_operations_list %}
     <tr>
-        <td>{{op.debtor.name}}</td><td> ===> </td><td>{{op.creditor.name}}</td><td>{{"{0:8.2f}".format(op.amount)}} Р</td>
+        <td>{{op.debtor.name}}</td><td> ===> </td><td>{{op.creditor.name}}</td><td>{{"{0:8.2f}".format(op.amount)}}</td>
     </tr>
     {% endfor %}
 </table>
-{% endif %}
 
-<hr>
+<form class="d-flex flex-wrap justify-content-center"
+  method="post" name="calculatebuttons"
+  action="{{url_for('budget.calculate')}}">
+    <div class="d-flex flex-column">
+        <input class="btn btn-success" name="simple" type="submit" value="Рассчитать аглоритмом АП" class="button">
+        <small class="text-info text-center">АП - алгортим простой</small>
+    </div>
+    <div class="container w-100"></div>
+    <div class="d-flex flex-column mt-1">
+        <input class="btn btn-success" name="monte-carlo" type="submit" value="Рассчитать алгоритмом АВ" class="button">
+        <small class="text-info text-center">АВ - алгоритм вероятностный</small>
+    </div>
+</form>
+{% endif %}
 
 {% endblock %}
