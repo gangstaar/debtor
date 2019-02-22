@@ -1,64 +1,37 @@
 {% extends 'base.html' %}
 
 {% block header %}
-<h3 class="text-info text-">
+
 {% block title %}
 {% if budget_file %}
-    Бюджет "{{budget_file[:-4]}}"
+    "{{budget_file[:-4]}}"
 {% else %}
     Бюджет не выбран
 {% endif %}
 {% endblock %}
-</h3>
+
 {% endblock %}
 
 {% block content %}
 
-<div class="d-flex flex-row">
-    <form class="d-flex flex-row align-items-end px-1"
-          method="post" name="editbudgetfilename"
-          action="{{url_for('budget.edit_file_name')}}">
-        <div class="form-group px-1">
-            <label for="filename">Имя файла</label>
-            <input class="form-control" id="filename" name="filename" value="{{budget_file[:-4]}}" size="10">
-        </div>
-        <div class="form-group">
-            <input type="image" src="{{url_for('static', filename='ok.png')}}" alt="Ок" class="pictobutton">
-            <!--<input type="submit" class="btn btn-primary" value="Ок">-->
-        </div>
-    </form>
-    <form class="d-flex flex-row align-items-end px-1"
-          method="post" name="editbudgetmemo"
-          action="{{url_for('budget.edit_memo')}}">
-        <div class="form-group px-1">
-            <label for="memo">Описание</label>
-            <input class="form-control" id="memo" name="memo" value="{{budget.memo}}" size="20">
-        </div>
-        <div class="form-group">
-            <input type="image" src="{{url_for('static', filename='ok.png')}}" alt="Ок" class="pictobutton">
-            <!--<input type="submit" class="btn btn-primary" value="Ок">-->
-        </div>
+<h4 class="text-center pt-2">Траты</h4>
+
+{% if g.budget.spending_list.__len__() == 0 %}
+<div class="d-inline-flex flex-row">
+    <p class="text-info mr-1">Нажмите для добавления:</p>
+    <form method="post" name="addspending"
+          action="{{url_for('budget.add_spending')}}">
+        <input name="addspending" type="image"  alt="Добавить" src="{{url_for('static', filename='plus.png')}}"
+               class="pictobutton">
     </form>
 </div>
 
-<h4 class="text-center pt-2">Траты</h4>
+
+{% else %}
 
 <table class="table table-striped table-sm table-responsive-sm">
-    <thead class="thead-light">
-        <tr>
-            <th></th>
-            <th>N</th>
-            <th width="100">Дата</th>
-            <th>Сумма</th>
-            <th>Описание</th>
-            <th>Оплатил</th>
-            <th></th>
-        </tr>
-    </thead>
     <form method="post" name="addspending"
           action="{{url_for('budget.add_spending')}}">
-        <td></td>
-        <td></td>
         <td></td>
         <td></td>
         <td></td>
@@ -73,16 +46,25 @@
     <tr>
         <form method="post" name="spendingoperation"
               action="{{url_for('budget.edit_spending', spending_number=budget.spending_list.index(s))}}">
+            <td class="align-middle"><p class="text-black-50 mb-0"><b>{{g.budget.spending_list.index(s)+1}}</b></p></td>
             <td>
-                <input name="editspending" type="image" alt="Редактировать"
-                       src="{{url_for('static', filename='edit.png')}}" class="pictobutton">
+                <div class="d-flex flex-column">
+                    <div>
+                        <a href="{{url_for('budget.edit_spending', spending_number=budget.spending_list.index(s))}}"
+                           class="small" title="Редактировать">{{s.memo}}</a>
+                    </div>
+                    <div>
+                        <small class="text-info">{{s.date_time.strftime('%d.%m.%y')}}</small>
+                    </div>
+                </div>
             </td>
-            <td width="20">{{g.budget.spending_list.index(s)+1}}</td>
-            <td>{{s.date_time.strftime('%d.%m.%y')}}</td>
-            <td width="100">{{s.amount}}</td>
-            <td width="200">{{s.memo}}</td>
-            <td width="100">{{s.payer.name}}</td>
-            <td>
+            <td class="align-middle">
+                <p class="text-success mb-0">{{s.amount}}</p>
+            </td>
+            <td class="align-middle">
+                <p class="text-body mb-0">{{s.payer.name}}</p>
+            </td>
+            <td class="align-middle">
                 <input name="deletespending" type="image" alt="Удалить"
                        src="{{url_for('static', filename='cross.png')}}"
                        class="confirm-required pictobutton"
@@ -92,6 +74,8 @@
     </tr>
     {% endfor %}
 </table>
+
+{%endif%}
 
 <h4 class="text-center">Участники</h4>
 
@@ -108,11 +92,10 @@
         {% for person in g.budget.persons_list %}
         <tr>
             <td>{{person.name}}</td>
-            <td>{{person.weight}}</td>
+            <td><p class="text-info my-0">{{person.weight}}</p></td>
             <td>{{person.pays_for}}</td>
             <td>
-                <form class=""
-                      method="post" name="deleteperson"
+                <form method="post" name="deleteperson"
                       action="{{url_for('budget.remove_person', person_name=person.name)}}">
                     {% if g.budget.spending_list.__len__() == 0 %}
                     <input name="deleteperson{{g.budget.persons_list.index(person)}}"
@@ -185,5 +168,37 @@
     </div>
 </form>
 {% endif %}
+
+<div class="d-flex flex-column mt-2">
+    <form class="d-flex flex-row px-1"
+          method="post" name="editbudgetfilename"
+          action="{{url_for('budget.edit_file_name')}}">
+        <div class="form-group">
+            <label for="filename">Название</label>
+            <div class="d-flex flex-row">
+                <input class="form-control pr-3" id="filename" name="filename" value="{{budget_file[:-4]}}" size="20">
+                <input type="image" src="{{url_for('static', filename='ok.png')}}" alt="Ок" class="pictobutton ml-1">
+                <!--<input type="submit" class="btn btn-primary" value="Ок">-->
+            </div>
+            <small class="form-text text-primary">Не забудьтье отпавить форму</small>
+        </div>
+        <div class="form-group">
+
+        </div>
+    </form>
+    <!--<form class="d-flex flex-row align-items-end px-1"-->
+          <!--method="post" name="editbudgetmemo"-->
+          <!--action="{{url_for('budget.edit_memo')}}">-->
+        <!--<div class="form-group">-->
+            <!--<label for="memo">Описание</label>-->
+            <!--<div class="d-flex flex-row">-->
+                <!--<input type="text" class="form-control" id="memo" name="memo" value="{{budget.memo}}" size="20">-->
+                <!--<input type="image" src="{{url_for('static', filename='ok.png')}}" alt="Ок" class="pictobutton">-->
+                <!--&lt;!&ndash;<input type="submit" class="btn btn-primary" value="Ок">&ndash;&gt;-->
+            <!--</div>-->
+            <!--<small class="form-text text-primary">Не забудьтье отпавить форму</small>-->
+        <!--</div>-->
+    <!--</form>-->
+</div>
 
 {% endblock %}

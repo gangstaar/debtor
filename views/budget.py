@@ -116,19 +116,21 @@ def add_spending():
     return redirect(url_for('spending.edit'))
 
 
-@bp.route('/edit_spending=<spending_number>', methods=['POST'])
+@bp.route('/edit_spending=<spending_number>', methods=['POST', 'GET'])
 def edit_spending(spending_number='0'):
     index = int(spending_number)
-    if index < len(g.budget.spending_list):
-        if request.form.get('deletespending.x') is not None:
-            g.budget.spending_list.pop(index)
-            g.budget.calc_debt_operations_list()
-            bio.save_budget(g.budget, './saved_budgets/' + g.budget_file)
+    if index >= len(g.budget.spending_list):
+        return redirect(url_for('budget.edit'))
 
-        if request.form.get('editspending.x') is not None:
-            g.budget.current_spending = g.budget.spending_list[index]
-            bio.save_budget(g.budget, './saved_budgets/' + g.budget_file)
-            session['spending_index'] = index
-            return redirect(url_for('spending.edit'))
+    if request.form.get('deletespending.x') is not None:
+        g.budget.spending_list.pop(index)
+        g.budget.calc_debt_operations_list()
+        bio.save_budget(g.budget, './saved_budgets/' + g.budget_file)
+        return redirect(url_for('budget.edit'))
+    else:
+        g.budget.current_spending = g.budget.spending_list[index]
+        bio.save_budget(g.budget, './saved_budgets/' + g.budget_file)
+        session['spending_index'] = index
+        return redirect(url_for('spending.edit'))
 
-    return redirect(url_for('budget.edit'))
+
