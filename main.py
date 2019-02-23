@@ -74,7 +74,10 @@ def print_budget(budget_file=None):
 def copy_budget(budget_file=None):
     if (budget_file is not None) and (is_budget_exists(budget_file)):
         budget = bio.load_budget('./saved_budgets/' + budget_file)
-        bio.save_budget(budget, './saved_budgets/' + budget_file[:-4] + ' - copy')
+        new_budget_file = budget_file[:-4] + ' - copy.bdg'
+        bio.save_budget(budget, './saved_budgets/' + new_budget_file)
+        session['budget_file'] = new_budget_file
+        return redirect(url_for('budget.edit'))
 
     return redirect(url_for('main'))
 

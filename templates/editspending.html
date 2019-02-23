@@ -28,14 +28,14 @@
                 <div class="col-auto">
                     <div class="form-group">
                         <label for="spendingDate">Дата</label>
-                        <input type="text" class="form-control" name="spendingdate" id="spendingDate"  value="{{spending.get_date_s()}}" size="10">
+                        <input type="text" class="form-control" name="spendingdate" id="spendingDate"  value="{{spending.get_date_s()}}" size="9">
                         <small class="form-text text-muted">Формат: ДД.ММ.ГГГГ</small>
                     </div>
                 </div>
                 <div class="col-auto">
                     <div class="form-group">
                         <label for="spendingAmount">Сумма</label>
-                        <input type="text" class="form-control" name="spendingamount" id="spendingAmount"  value="{{spending.amount}}" size="10">
+                        <input type="text" class="form-control" name="spendingamount" id="spendingAmount"  value="{{spending.amount}}" size="7">
                     </div>
                 </div>
             </div>
@@ -75,7 +75,9 @@
 <h4 class="text-center pt-2">Потребители</h4>
 
 {% if spending.is_calculated() %}
+<h5 class="text-success text-center">Расход распределён</h5>
 {% else %}
+<h5 class="text-danger text-center">Нераспределённая сумма: <span class="badge badge-danger">{{"{0:8.2f}".format(spending.get_undistributed_value())}}</span></h5>
 <input class="btn btn-success my-1" name="addAll" type="submit" value="Добавить всех участников" form="addpersonID">
 {%endif%}
 
@@ -139,11 +141,6 @@
 </form>
 {% endif %}
 
-{% if spending.is_calculated() %}
-<h5 class="text-success text-center">Расход распределён</h5>
-{% else %}
-<h5 class="text-danger text-center">Нераспределённая сумма: <span class="badge badge-danger">{{spending.get_undistributed_value()}}</span></h5>
-{% endif %}
 {% else %}
 <h5 class="text-info text-center">
 Укажите сумму и оплатившего для добавления потребителей.
