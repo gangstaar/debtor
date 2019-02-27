@@ -18,7 +18,7 @@ def load_budgets():
         return redirect(url_for('main'))
 
     g.budget_file = budget_file
-    g.budget = bio.load_budget('./saved_budgets/' + budget_file)
+    g.budget = bio.load_budget('./saved_budgets/' + budget_file)  # type: b.TBudget
 
 
 @bp.route('/edit', methods=['GET'])
@@ -114,6 +114,44 @@ def add_spending():
 
     bio.save_budget(g.budget, './saved_budgets/' + g.budget_file)
     return redirect(url_for('spending.edit'))
+
+
+@bp.route('/add-DOI', methods=['POST'])
+def add_debt_operation_inter():
+    transmitter_name = request.form['transmitterName']
+    receiver_name = request.form['receiverName']
+    amount = request.form['amount']
+
+    if (transmitter_name is None) or (receiver_name is None) or (amount is None):
+        return 'Не заполнено(ы) поле(я) для добавления операции.'
+
+    if (transmitter_name.isspace()) or (receiver_name.isspace()) or (amount.isspace()):
+        return 'Не заполнено(ы) поле(я) для добавления операции.'
+
+    if (transmitter_name.__len__() == 0) or (receiver_name.__len__() == 0) or (amount.__len__() == 0):
+        return 'Не заполнено(ы) поле(я) для добавления операции.'
+
+    if not amount.replace('.', '1').isdigit():
+        return 'В поле "Сумма" должно быть число!'
+
+    amount = float(amount)
+
+    g.budget.add_debt_operation_intermediate(receiver_name, transmitter_name, amount)
+    g.budget.calc_debt_operations_list()
+    bio.save_budget(g.budget, './saved_budgets/' + g.budget_file)
+
+    return redirect(url_for('budget.edit'))
+
+
+@bp.route('/remove-DOI=<debt_operation_inter_index>', methods=['POST'])
+def remove_debt_operation_inter(debt_operation_inter_index=0):
+    debt_operation_inter_index = int(debt_operation_inter_index)
+    if debt_operation_inter_index < len(g.budget.debt_operations_list_inter):
+        g.budget.debt_operations_list_inter.pop(debt_operation_inter_index)
+        g.budget.calc_debt_operations_list()
+        bio.save_budget(g.budget, './saved_budgets/' + g.budget_file)
+
+    return redirect(url_for('budget.edit'))
 
 
 @bp.route('/edit_spending=<spending_number>', methods=['POST', 'GET'])

@@ -125,6 +125,7 @@ class TBudget:
         self.memo = memo
         self.persons_list = []  # type: List[TPerson]
         self.spending_list = []  # type: List[TSpending]
+        self.debt_operations_list_inter = []  # type: List[TDebtOperation]
         self.debt_operations_list = []  # type: List[TDebtOperation]
         self.current_spending = None  # type: TSpending
 
@@ -169,7 +170,19 @@ class TBudget:
 
         self.persons_list.append(person)
 
-    # Возвращает список всех расходов person
+    def add_debt_operation_intermediate(self, receiver_name, transmitter_name, amount):
+        #  type: (str, str, int) -> None
+        if not self.is_participant(transmitter_name) or not self.is_participant(receiver_name):
+            return
+        if amount <= 0.:
+            return
+
+        debtor = self.get_person_by_name(receiver_name)
+        creditor = self.get_person_by_name(transmitter_name)
+
+        self.debt_operations_list_inter.append(TDebtOperation(debtor, creditor, amount))
+
+    # Возвращает список всех расходов person_name
     def get_spending_list_for_person(self, person_name):
         if isinstance(person_name, TPerson):
             person_name = person_name.name
@@ -180,7 +193,7 @@ class TBudget:
                 sp_list.append(sp)
         return sp_list
 
-    # Возвращает сумму всех расходов person
+    # Возвращает сумму всех расходов person_name
     def get_spending_amount_for_person(self, person_name):
         if isinstance(person_name, TPerson):
             person_name = person_name.name
@@ -189,7 +202,19 @@ class TBudget:
         s = 0.00
         for sp in sp_list:
             s += sp.amount
+
         return s
+
+    # Возвращает сумму всех расходов person_name на самого себя
+    def get_spending_amount_own_for_person(self, person_name):
+        if isinstance(person_name, TPerson):
+            person_name = person_name.name
+
+        s = self.get_consumption_amount_for_person(person_name) - \
+            self.get_consumption_amount_not_payed_by_him_for_person(person_name)
+
+        return s
+
 
     # Возвращает общую сумму расходов
     def get_spending_amount_total(self):
@@ -198,7 +223,7 @@ class TBudget:
             s += sp.amount
         return s
 
-    # Возвращает список потребления person
+    # Возвращает список потребления person_name
     def get_consumption_list_for_person(self, person_name):
         if isinstance(person_name, TPerson):
             person_name = person_name.name
@@ -209,7 +234,7 @@ class TBudget:
                 c_list.append(spending.get_consumption_for_person(person_name))
         return c_list
 
-    # Возвращает сумму потребления person
+    # Возвращает сумму потребления person_name
     def get_consumption_amount_for_person(self, person_name):
         if isinstance(person_name, TPerson):
             person_name = person_name.name
@@ -218,7 +243,21 @@ class TBudget:
         am = 0.00
         for c in c_list:
             am += c.amount
+
         return am
+
+    # Возвращает сумму потребления person_name, за которые он не платил
+    def get_consumption_amount_not_payed_by_him_for_person(self, person_name):
+        if isinstance(person_name, TPerson):
+            person_name = person_name.name
+
+        c_list = self.get_consumption_list_for_person(person_name)
+        s = 0.00
+        for c in c_list:
+            if c.spending.payer.name != person_name:
+                s += c.amount
+
+        return s
 
     # Возвращает общую сумму потребления
     def get_consumption_amount_total(self):
@@ -244,6 +283,7 @@ class TBudget:
         if isinstance(person_name, TPerson):
             person_name = person_name.name
 
+        # Потребил - потратил
         debt_own = self.get_consumption_amount_for_person(person_name) - \
             self.get_spending_amount_for_person(person_name)
 
@@ -253,12 +293,23 @@ class TBudget:
 
         p = self.get_person_by_name(person_name)
 
+        # Если за кого-то платит
         if p.pays_for != '':
             person_for = p.pays_for
             debt_for = self.get_consumption_amount_for_person(person_for) - \
                 self.get_spending_amount_for_person(person_for)
             if debt_for > 0.0:
                 debt_own += debt_for
+
+        # Принимал от кого-то промежуточный расчёт
+        for dop in self.debt_operations_list_inter:
+            if dop.debtor.name == person_name:
+                debt_own += dop.amount
+
+        # Отдавал кому-то в промежуточном расчёте
+        for dop in self.debt_operations_list_inter:
+            if dop.creditor.name == person_name:
+                debt_own -= dop.amount
 
         return debt_own
 
@@ -291,8 +342,9 @@ class TBudget:
 
         eps_debt = abs(self.get_debt_sum())
         eps_trans = abs(self.get_positive_debt_sum() - self.get_transaction_sum())
+        eps_cons = abs(self.get_consumption_amount_total() - self.get_spending_amount_total() )
 
-        if (eps_debt < 1e-2) and (eps_trans < 1e-2):
+        if (eps_debt < 1e-2) and (eps_trans < 1e-2) and (eps_cons < 1e-2):
             return True
         else:
             return False
@@ -302,6 +354,8 @@ class TBudget:
         creditors_list = []
         debtors_amount_list = []
         creditors_amount_list = []
+
+        # Добавление долгов тем, кто оплачивает чужие долги
         for p in self.persons_list:
             d = self.get_debt_for_person(p.name)
             if d > 0:

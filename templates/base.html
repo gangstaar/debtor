@@ -23,7 +23,6 @@
             <nav class="navbar navbar-expand-sm navbar-light bg-light flex-column align-items-start">
                 <div class="container-fluid justify-content-between align-content-center flex-wrap">
                     <a class="navbar-brand" href="{{url_for('main')}}">Должник</a>
-                    <p class="text-info my-0"></p>
                     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                         <span class="navbar-toggler-icon"></span>
                     </button>
@@ -65,9 +64,9 @@
         <div class="col-sm">
             <div class="row">
                 <div class="col-12 align-items-center">
-                    <h3 class="text-info text-center">
+                    <h4 class="text-info text-center">
                         {% block header %}{% endblock %}
-                    </h3>
+                    </h4>
                 </div>
                 <div class="col">
                     {% block content %}{% endblock %}

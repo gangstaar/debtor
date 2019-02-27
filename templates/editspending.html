@@ -17,11 +17,21 @@
 
 {% block content %}
 
-<div class="card">
-    <!--<div class="card-header">-->
-        <!--<p class="text-info my-0">Заголовок</p>-->
-    <!--</div>-->
-    <div class="card-body">
+<div class="card ">
+    <div class="card-header">
+        <p class="text-center text-info my-0">
+            <a data-toggle="collapse" href="#headerBodyCard">
+                Заголовок
+            </a>
+        </p>
+        <!--<p class="text-info text-center my-0">Заголовок</p>-->
+    </div>
+
+    {% if spending.consumers_list.__len__() > 0%}
+    <div class="card-body collapse" id="headerBodyCard">
+    {% else %}
+    <div class="card-body collapse show" id="headerBodyCard">
+    {% endif %}
         <form name="editspendinghead" method="post" id="editspendinghead"
               action="{{url_for('spending.edit_head')}}">
             <div class="row justify-content-start">
@@ -57,7 +67,7 @@
                             <option {% if person.name == spending.payer.name %} selected {% endif %} >{{person.name}}</option>
                             {% endfor %}
                         </select>
-                        <small class="form-text text-info">Не забудьте отправить форму!</small>
+                        <small class="form-text text-info">Не забудьте отправить форму</small>
                     </div>
                 </div>
                 <div class="col-auto">
@@ -72,74 +82,102 @@
 
 {% if spending.amount > 0 %}
 
-<h4 class="text-center pt-2">Потребители</h4>
-
-{% if spending.is_calculated() %}
-<h5 class="text-success text-center">Расход распределён</h5>
-{% else %}
-<h5 class="text-danger text-center">Нераспределённая сумма: <span class="badge badge-danger">{{"{0:8.2f}".format(spending.get_undistributed_value())}}</span></h5>
-<input class="btn btn-success my-1" name="addAll" type="submit" value="Добавить всех участников" form="addpersonID">
-{%endif%}
-
-<table class="table table-striped table-sm table-responsive-sm">
-    <thead class="thead-light">
-        <tr>
-            <th>Сумма</th>
-            <th>Имя</th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-    {% for c in spending.consumers_list %}
-    <tr>
-        <td>{{"{0:8.2f}".format(c.amount)}}</td>
-        <td>{{c.person.name}}</td>
-        <td>
-            <form method="post" name="deleteperson"
-                  action="{{url_for('spending.remove_person', consumer_number=spending.consumers_list.index(c))}}">
-            <input type="image" src="{{url_for('static', filename='cross.png')}}"  alt="Удалить" class="pictobutton">
-            </form>
-        </td>
-    </tr>
-    {% endfor %}
-    {% if spending.is_calculated() %}
-    {% else %}
-    <tr>
-    <form method="post" name="addperson" id="addpersonID"
-          action="{{url_for('spending.add_person')}}">
-        <td>
-            <input class="form-control" name="amount" type="text" size="10" value="0">
-        </td>
-        <td>
-            <select name="name" class="form-control" form="addpersonID">
-                {% for person in budget.persons_list %}<option>{{person.name}}</option>{% endfor %}
-            </select>
-        </td>
-        <td>
-            <input name="addperson" type="image" src="{{url_for('static', filename='plus.png')}}" alt="Добавить"
-                   class="pictobutton">
-        </td>
-    </form>
-    </tr>
-    {% endif %}
-    </tbody>
-</table>
-
-{% if spending.consumers_list.__len__() > 0 %}
-<form method="post" name="calc"
-      action="{{url_for('spending.calc')}}">
-    <div class="row">
-        <div class="form-group col">
-            <input name="aver" type="submit" value="Поровну" class="form-control btn btn-primary">
-            <small class="form-text text-info text-center">Среднее арифметическое</small>
+    <div class="card">
+        <div class="card-header">
+            <p class="text-info text-center my-0">Потребители</p>
         </div>
-        <div class="form-group col">
-            <input name="weighted" type="submit" value="C весом" class="form-control btn btn-primary">
-            <small class="form-text text-info text-center">Среднее взвешенное</small>
+        <div class="card-body justify-content-center row">
+            <div class="col">
+                {% if spending.is_calculated() %}
+                <h5 class="text-success text-center">Расход распределён</h5>
+                {% else %}
+                <h5 class="text-danger text-center">Нераспределённая сумма: <span class="badge badge-danger">{{"{0:8.2f}".format(spending.get_undistributed_value())}}</span>
+                </h5>
+                {%endif%}
+
+                <table class="table table-striped table-sm">
+                    <thead class="thead-light">
+                    <tr>
+                        <th></th>
+                        <th>Сумма</th>
+                        <th>Имя</th>
+                        <th></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for c in spending.consumers_list %}
+                    <tr>
+                        <td>
+                            <form method="post" name="editperson"
+                                  action="{{url_for('spending.edit_person', consumer_number=spending.consumers_list.index(c))}}">
+                                <input type="image" src="{{url_for('static', filename='edit.png')}}" alt="Редактировать"
+                                       class="pictobutton">
+                            </form>
+                        </td>
+                        <td>{{"{0:8.2f}".format(c.amount)}}</td>
+                        <td>{{c.person.name}}</td>
+                        <td>
+                            <form method="post" name="deleteperson"
+                                  action="{{url_for('spending.remove_person', consumer_number=spending.consumers_list.index(c))}}">
+                                <input type="image" src="{{url_for('static', filename='cross.png')}}" alt="Удалить"
+                                       class="pictobutton">
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    {% if spending.is_calculated() %}
+                    {% else %}
+                    <tr>
+                        <form method="post" name="addperson" id="addpersonID"
+                              action="{{url_for('spending.add_person')}}">
+                            <td>
+                                {% if consumer %}
+                                <input class="form-control" name="amount" type="text" size="10" value="{{consumer.amount}}">
+                                {% else%}
+                                <input class="form-control" name="amount" type="text" size="10" value="0">
+                                {%endif%}
+                            </td>
+                            <td>
+                                <select name="name" class="form-control" form="addpersonID">
+                                    {% for person in budget.persons_list %}
+                                    {% if consumer != None and consumer.person.name == person.name %}
+                                    <option selected>{{person.name}}</option>
+                                    {% else%}
+                                    <option>{{person.name}}</option>
+                                    {% endif %}
+                                    {% endfor %}
+                                    <option class="text-primary my-0">Добавить всех</option>
+                                </select>
+                            </td>
+                            <td>
+                                <input name="addperson" type="image" src="{{url_for('static', filename='plus.png')}}"
+                                       alt="Добавить"
+                                       class="pictobutton">
+                            </td>
+                        </form>
+                    </tr>
+                    {% endif %}
+                    </tbody>
+                </table>
+
+                {% if spending.consumers_list.__len__() > 0 %}
+                <form method="post" name="calc"
+                      action="{{url_for('spending.calc')}}">
+                    <div class="row">
+                        <div class="form-group col">
+                            <input name="aver" type="submit" value="Поровну" class="form-control btn btn-primary">
+                            <!--<small class="form-text text-info text-center my-0">Среднее арифметическое</small>-->
+                        </div>
+                        <div class="form-group col">
+                            <input name="weighted" type="submit" value="C весом" class="form-control btn btn-primary">
+                            <!--<small class="form-text text-info text-center my-0">Среднее взвешенное</small>-->
+                        </div>
+                    </div>
+                </form>
+                {% endif %}
+            </div>
         </div>
     </div>
-</form>
-{% endif %}
 
 {% else %}
 <h5 class="text-info text-center">
@@ -149,7 +187,7 @@
 
 <form method="post" name="ok"
       action="{{url_for('spending.submit', index=index)}}">
-    <div class="row">
+    <div class="row mt-1">
         <div class="form-group col">
             {% if spending.is_calculated() and budget.is_participant(spending.payer.name) %}
             <input class="form-control btn-success" name="ok" type="submit" value="Ок">

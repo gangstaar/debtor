@@ -28,7 +28,7 @@ def load():
 def edit():
     return render_template('editspending.html', budget=g.budget, budget_file=g.budget_file,
                            spending=g.budget.current_spending,
-                           index=g.spending_index)
+                           index=g.spending_index, consumer=None)
 
 
 @bp.route('/remove-person=<consumer_number>', methods=['POST'])
@@ -48,13 +48,29 @@ def add_person():
         bio.save_budget(g.budget, './saved_budgets/' + g.budget_file)
 
     if (request.form['name'] is not None) and (request.form['amount'] is not None):
-        person = g.budget.get_person_by_name(request.form['name'])
-        if person is not None:
-            g.budget.current_spending.add_consumer(person, float(request.form['amount']))
-            bio.save_budget(g.budget, './saved_budgets/' + g.budget_file)
+        name = request.form['name']
+
+        if name == 'Добавить всех':
+            g.budget.current_spending.add_consumer(g.budget.persons_list, 0)
+        else:
+            person = g.budget.get_person_by_name(name)
+            if person is not None:
+                g.budget.current_spending.add_consumer(person, float(request.form['amount']))
+
+        bio.save_budget(g.budget, './saved_budgets/' + g.budget_file)
 
     return redirect(url_for('spending.edit'))
 
+@bp.route('/edit-person=<consumer_number>', methods=['POST'])
+def edit_person(consumer_number=0):
+    index = int(consumer_number)
+    if index < len(g.budget.current_spending.consumers_list):
+        consumer = g.budget.current_spending.consumers_list.pop(index)
+
+    bio.save_budget(g.budget, './saved_budgets/' + g.budget_file)
+    return render_template('editspending.html', budget=g.budget, budget_file=g.budget_file,
+                           spending=g.budget.current_spending,
+                           index=g.spending_index, consumer=consumer)
 
 @bp.route('/edit-head', methods=['POST'])
 def edit_head():

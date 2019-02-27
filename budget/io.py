@@ -8,22 +8,22 @@ from datetime import datetime as dt
 
 def get_report(budget, is_long=False):
     rep = ['В бюджете "' + budget.memo + '" участвуют: ']
-    s = ''
+    spend = ''
     for p in budget.persons_list:
-        s += p.name + ' ({0:2.1f})'.format(p.weight)
+        spend += p.name + ' ({0:2.1f})'.format(p.weight)
         if p != budget.persons_list[-1]:
-            s += ', '
-    rep.append(s)
+            spend += ', '
+    rep.append(spend)
     rep.append('')
 
-    rep.append("Зафиксировано операций на сумму " + '{0:7.2f}'.format(budget.get_spending_amount_total()) + " Р:")
-    for s in budget.spending_list:
-        n = s.payer.name + ';'
-        line = '    ' + s.date_time.strftime('%d.%m.%Y %H:%M') + ' {0:8.2f}'.format(s.amount) + \
-               ' Р за ' + '{0:20s}'.format(s.memo) + ' заплатил ' + '{0:8s}'.format(n)
+    rep.append("Зафиксировано трат на сумму " + '{0:7.2f}'.format(budget.get_spending_amount_total()) + " Р:")
+    for spend in budget.spending_list:
+        n = spend.payer.name + ';'
+        line = '    ' + spend.date_time.strftime('%d.%m.%Y %H:%M') + ' {0:9.2f}'.format(spend.amount) + \
+               ' Р за ' + '{0:20s}'.format(spend.memo) + ' заплатил ' + '{0:8s}'.format(n)
 
         names = []
-        for c in s.consumers_list:
+        for c in spend.consumers_list:
             names.append(c.person.name)
 
         line += ' потребляли:'
@@ -39,51 +39,67 @@ def get_report(budget, is_long=False):
 
     rep.append('')
 
-    for p in budget.persons_list:
-        s = budget.get_spending_amount_for_person(p)
-        if s == 0.0:
-            continue
-        rep.append('{0:8s}'.format(p.name) + ' всего потратил ' + "{0:5.2f}".format(s) + ' Р:')
+    def app_hor_line(str_in):
+        str_in.append('+ {0:s}+'.format('- ' * 55))
 
+    app_hor_line(rep)
+    rep.append('| {0:9s} | '.format("Имя") + '{0:9s} | '.format("Потребил")
+               + '{0:14s} | '.format("За чужой счёт") + '{0:9s} | '.format("Потратил")
+               + '{0:9s} | '.format("На себя") + '{0:19s} | '.format("Потребил - потратил")
+               + '{0:9s} | '.format("Долг*") + '{0:10s} |'.format("Кто платит"))
+    app_hor_line(rep)
+    cons_not_payed_sum = 0.0
+    spend_own_sum = 0.0
+    for p in budget.persons_list:
+        cons = budget.get_consumption_amount_for_person(p)
+        cons_not_payed = budget.get_consumption_amount_not_payed_by_him_for_person(p)
+        cons_not_payed_sum += cons_not_payed
+        spend = budget.get_spending_amount_for_person(p)
+        spend_own = budget.get_spending_amount_own_for_person(p)
+        spend_own_sum += spend_own
+        debt = budget.get_debt_for_person(p)
+
+        pays_for_name = budget.get_person_name_who_pays_for(p)
+
+        s = '| {0:9s} | '.format(p.name) + "{0:9.2f} | ".format(cons) + "{0:14.2f} | ".format(cons_not_payed) \
+            + "{0:9.2f} | ".format(spend) + "{0:9.2f} | ".format(spend_own) + "{0:19.2f} | ".format(cons - spend)\
+            + "{0:9.2f} | ".format(debt) + "{0:10s} |".format(pays_for_name)
+
+        rep.append(s)
         if is_long:
             for sp in budget.get_spending_list_for_person(p):
-                rep.append('    ' + "{0:8.2f}".format(sp.amount) + ' Р на ' + '{0:20s}'.format(sp.memo))
+                rep.append('    ' + "{0:9.2f}".format(sp.amount) + ' Р на ' + '{0:20s}'.format(sp.memo))
+
+
+    cons = budget.get_consumption_amount_total()
+    spend = budget.get_spending_amount_total()
+    debt = budget.get_debt_sum()
+    app_hor_line(rep)
+    rep.append('| {0:9s} | '.format("Всего") + "{0:9.2f} | ".format(cons) + "{0:14.2f} | ".format(cons_not_payed_sum)
+               + "{0:9.2f} | ".format(spend) + "{0:9.2f} | ".format(spend_own_sum) + "{0:19.2f} | ".format(cons-spend)
+               + "{0:9.2f} | ".format(debt) + "{0:10s} |".format(''))
+    app_hor_line(rep)
+
+    rep.append('* - Долг участника рассчитывается с учётом его потреблений, трат, промежуточных операций  по долгам, а также его')
+    rep.append('    обязательств по оплате долгов других участников. Другими словами - это то количество денег, которое участник')
+    rep.append('    должен отдать.')
+    rep.append('')
+    rep.append('Сумма долгов > 0: ' + '{0:9.2f} Р.'.format(budget.get_positive_debt_sum()))
 
     rep.append('')
-
-    consume_amount = 0.0
-    for p in budget.persons_list:
-        c = budget.get_consumption_amount_for_person(p)
-        rep.append('{0:8s}'.format(p.name) + ' всего потребил на ' + "{0:8.2f}".format(c) + ' Р')
-        consume_amount += c
-
-        if is_long:
-            for sp in budget.get_consumption_list_for_person(p):
-                rep.append('    ' + "{0:8.2f}".format(sp.amount) + ' Р: ' +
-                           '{0:20s}'.format(sp.memo) + ' за счёт ' + '{0:8s}'.format(sp.spending.payer.name))
-
-    rep.append('Сумма ' + '{:8.2f} Р'.format(consume_amount))
-    rep.append('')
-
-    pos_sum = 0
-    for p in budget.persons_list:
-        debt = budget.get_debt_for_person(p)
-        line = '{0:8s}'.format(p.name) + ' должен ' + "{0:8.2f}".format(debt) + ' Р'
-        payer_name = budget.get_person_name_who_pays_for(p.name)
-        if payer_name != '' and debt == 0.0:
-            line += ' (платит ' + payer_name + ')'
-        rep.append(line)
-        if debt > 0:
-            pos_sum += debt
-
-    rep.append('Сумма общая:' + '{0:8.2f} Р.'.format(budget.get_debt_sum()) + ' Сумма долгов > 0: ' + '{0:8.2f} Р.'.format(pos_sum))
+    rep.append('Промежуточные операции по долгам:')
+    for op in budget.debt_operations_list_inter:
+        rep.append('{0:8s}'.format(op.creditor.name) + ' -отдал-> ' + '{0:8s}'.format(op.debtor.name) + ' {0:9.2f}'.format(op.amount) + ' Р')
 
     rep.append('')
+    rep.append('Операции по долгам:')
     trans_sum = 0
     for op in budget.debt_operations_list:
-        rep.append('{0:8s}'.format(op.debtor.name) + ' -отдаёт-> ' + '{0:8s}'.format(op.creditor.name) + ' {0:8.2f}'.format(op.amount) + ' Р')
+        rep.append('{0:8s}'.format(op.debtor.name) + ' -отдаёт-> ' + '{0:8s}'.format(op.creditor.name) + ' {0:9.2f}'.format(op.amount) + ' Р')
         trans_sum += op.amount
-    rep.append('{0:2d}'.format(len(budget.debt_operations_list)) + ' переводов на сумму ' + '{0:8.2f} Р.'.format(trans_sum))
+
+    rep.append('')
+    rep.append('{0:2d}'.format(len(budget.debt_operations_list)) + ' переводов на сумму ' + '{0:9.2f} Р.'.format(trans_sum))
 
     return rep
 
@@ -314,7 +330,10 @@ def get_test_budget():
     s.calc_weighted()
     budget.add_spending(s)
 
-    budget.calc_debt_operations_list('monte-carlo')
+    budget.add_debt_operation_intermediate("Гошан", "Валёк", 3000)
+    budget.add_debt_operation_intermediate("Гошан", "Лена", 904.34)
+
+    budget.calc_debt_operations_list('simple')
 
     return budget
 
@@ -360,6 +379,12 @@ def save_budget(budget, file_name='budget.bdg'):
         f.write('\n SPENDING_AMOUNT = ' + '{0:12.6f}'.format(sp.amount))
         for p in sp.consumers_list:
             f.write('\n ' + '{0:10s}'.format(p.person.name) + ' = ' + '{0:12.6f}'.format(p.amount))
+
+    for debt_o in budget.debt_operations_list_inter:
+        f.write('\nDEBT_OPERATION_INTERMEDIATE')
+        f.write('\n DEBTOR_NAME = ' + '{0:10s}'.format(debt_o.debtor.name))
+        f.write('\n CREDITOR_NAME = ' + '{0:10s}'.format(debt_o.creditor.name))
+        f.write('\n AMOUNT = ' + '{0:12.6f}'.format(debt_o.amount))
 
     for debt_o in budget.debt_operations_list:
         f.write('\nDEBT_OPERATION')
@@ -446,7 +471,8 @@ def load_budget(file_name):
         lin = f.readline().strip()
         while (not(lin.startswith('SPENDING_MEMO') or
                    lin.startswith('C_SPENDING_MEMO') or
-                   lin.startswith('DEBT_OPERATION')) and
+                   lin.startswith('DEBT_OPERATION') or
+                   lin.startswith('DEBT_OPERATION_INTERMEDIATE')) and
                 (lin != '')):
             consumer_name = lin.split(' = ')[0].strip()
             amount = float(lin.split(' = ')[1])
@@ -459,6 +485,19 @@ def load_budget(file_name):
         else:
             budget.add_spending(spending)
 
+    # Промежуточные операции по долгам
+    while lin != '' and lin.strip() != 'DEBT_OPERATION':
+        lin = f.readline().strip()
+        debtor_name = lin.split(' = ')[1]
+        lin = f.readline().strip()
+        creditor_name = lin.split(' = ')[1]
+        lin = f.readline().strip()
+        amount = float(lin.split(' = ')[1])
+
+        budget.add_debt_operation_intermediate(debtor_name, creditor_name, amount)
+        lin = f.readline().strip()
+
+    # Операции по долгам
     while lin != '':
         lin = f.readline().strip()
         debtor_name = lin.split(' = ')[1]
@@ -476,6 +515,7 @@ def load_budget(file_name):
         lin = f.readline().strip()
     f.close()
     return budget
+
 
 def is_budget_exists(budget_name):
     saved_budgets = get_available_budgets('./saved_budgets')
