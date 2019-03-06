@@ -6,7 +6,7 @@
 {% if budget_file %}
 "{{budget_file[:-4:]}}"
 {% else %}
-    Бюджет не выбран
+Бюджет не выбран
 {% endif %}
 {% endblock %}
 
@@ -15,7 +15,7 @@
 {% block content %}
 
 <div class="d-flex flex-wrap align-items-center justify-content-between">
-    <p class="text-info my-0">Действия с бюджетом:</p>
+    Действия с бюджетом:
     <div class="d-flex flex-row py-2 px-2">
         <a href="{{url_for('print_budget', budget_file=budget_file)}}" title="Отчёт">
             <img src={{url_for('static', filename='report.png' )}} alt="Отчёт" border="0"
@@ -33,77 +33,79 @@
 
 <!--Траты-->
 <div class="card mb-2">
-        <div class="card-header">
-            <p class="text-center h5 my-0">Траты</p>
+    <div class="card-header">
+        <p class="text-center h5">Траты</p>
+    </div>
+    <div class="card-body justify-content-center p-1">
+
+        {% if g.budget.spending_list.__len__() == 0 %}
+
+        <div class="d-inline-flex flex-row">
+            <p class="text-info mr-1">Нажмите для добавления:</p>
+            <form method="post" name="addspending"
+                  action="{{url_for('budget.add_spending')}}">
+                <input name="addspending" type="image"  alt="Добавить" src="{{url_for('static', filename='plus.png')}}"
+                       class="pictobutton">
+            </form>
         </div>
-        <div class="card-body justify-content-center">
-
-            {% if g.budget.spending_list.__len__() == 0 %}
-
-            <div class="d-inline-flex flex-row">
-                <p class="text-info mr-1">Нажмите для добавления:</p>
-                <form method="post" name="addspending"
-                      action="{{url_for('budget.add_spending')}}">
+        {% else %}
+        <table class="table table-striped table-sm">
+            <form method="post" name="addspending"
+                  action="{{url_for('budget.add_spending')}}">
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td>
                     <input name="addspending" type="image"  alt="Добавить" src="{{url_for('static', filename='plus.png')}}"
                            class="pictobutton">
-                </form>
-            </div>
-            {% else %}
-            <table class="table table-striped table-sm">
-                <form method="post" name="addspending"
-                      action="{{url_for('budget.add_spending')}}">
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td>
-                        <input name="addspending" type="image"  alt="Добавить" src="{{url_for('static', filename='plus.png')}}"
-                               class="pictobutton">
-                    </td>
+                </td>
 
-                </form>
-                {% for s in g.budget.spending_list.__reversed__() %}
-                <tr>
-                    <form method="post" name="spendingoperation"
-                          action="{{url_for('budget.edit_spending', spending_number=budget.spending_list.index(s))}}">
-                        <td class="align-middle"><p class="text-black-50 mb-0">{{g.budget.spending_list.index(s)+1}}</p></td>
-                        <td>
-                            <div class="d-flex flex-column">
-                                <div>
-                                    <a href="{{url_for('budget.edit_spending', spending_number=budget.spending_list.index(s))}}"
-                                       class="small" title="Редактировать">{{s.memo}}</a>
-                                </div>
-                                <div>
-                                    <small class="text-info">{{s.date_time.strftime('%d.%m.%y')}}</small>
-                                </div>
+            </form>
+            {% for s in g.budget.spending_list.__reversed__() %}
+            <tr>
+                <form method="post" name="spendingoperation"
+                      action="{{url_for('budget.edit_spending', spending_number=budget.spending_list.index(s))}}">
+                    <td class="align-middle"><p class="text-black-50 mb-0">{{g.budget.spending_list.index(s)+1}}</p></td>
+                    <td>
+                        <div class="d-flex flex-column">
+                            <div>
+                                <a href="{{url_for('budget.edit_spending', spending_number=budget.spending_list.index(s))}}"
+                                   class="small" title="Редактировать">{{s.memo}}</a>
                             </div>
-                        </td>
-                        <td class="align-middle">
-                            <p class="text-success mb-0">{{s.amount}}</p>
-                        </td>
-                        <td class="align-middle">
-                            <p class="text-body mb-0">{{s.payer.name}}</p>
-                        </td>
-                        <td class="align-middle">
-                            <input name="deletespending" type="image" alt="Удалить"
-                                   src="{{url_for('static', filename='cross.png')}}"
-                                   class="confirm-required pictobutton"
-                                   message="Удалить трату № {{budget.spending_list.index(s)+1}} ?">
-                        </td>
-                    </form>
-                </tr>
-                {% endfor %}
-            </table>
-            {%endif%}
-        </div>
+                            <div>
+                                <small class="text-info">{{s.date_time.strftime('%d.%m.%y')}}</small>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="align-middle">
+                        <p class="text-success mb-0">{{s.amount}}</p>
+                    </td>
+                    <td class="align-middle">
+                        <p class="text-body mb-0">{{s.payer.name}}</p>
+                    </td>
+                    <td class="align-middle">
+                        <input name="deletespending" type="image" alt="Удалить"
+                               src="{{url_for('static', filename='cross.png')}}"
+                               class="confirm-required pictobutton"
+                               message="Удалить трату № {{budget.spending_list.index(s)+1}} ?">
+                    </td>
+                </form>
+            </tr>
+            {% endfor %}
+        </table>
+        {%endif%}
+    </div>
 </div>
 
 <!--Участники-->
 <div class="card mb-2">
-        <div class="card-header">
-            <p class="text-center h5 my-0">Участники</p>
-        </div>
-    <div class="card-body justify-content-center">
+    <div class="card-header">
+        <a data-toggle="collapse" href="#participants">
+            <p class="text-center h5">Участники</p>
+        </a>
+    </div>
+    <div class="card-body justify-content-center collapse p-1" id="participants">
         <table class="table table-striped table-sm">
             <thead class="thead-light">
             <tr>
@@ -172,10 +174,10 @@
 
 <!--Промежуточные операции по долгам-->
 <div class="card mb-2">
-        <div class="card-header">
-            <p class="text-center h5 my-0">Промежуточные операции по долгам</p>
-        </div>
-    <div class="card-body justify-content-center">
+    <div class="card-header">
+        <p class="text-center h5">Промежуточные операции по долгам</p>
+    </div>
+    <div class="card-body justify-content-center p-1">
         <table class="table table-striped table-sm">
             <thead>
             <tr>
@@ -187,83 +189,83 @@
             </tr>
             </thead>
             <tbody>
-                {% for op in g.budget.debt_operations_list_inter %}
-                <tr>
-                    <td><p class="text-black-50 mb-0">{{g.budget.debt_operations_list_inter.index(op)+1}}</p></td>
-                    <td>{{op.creditor.name}}</td><td>{{"{0:8.2f}".format(op.amount)}}</td><td>{{op.debtor.name}}</td>
-                    <td>
-                        <form method="post" name="deleteDOI"
-                              action="{{url_for('budget.remove_debt_operation_inter', debt_operation_inter_index=g.budget.debt_operations_list_inter.index(op))}}">
-                            <input type="image" alt="Удалить" title="Удалить"
-                                   src="{{url_for('static', filename='cross.png')}}"
-                                   class="confirm-required pictobutton"
-                                   message="Удалить промежуточную операцию по долгам номер {{g.budget.debt_operations_list_inter.index(op)+1}} ?">
-                        </form>
-                    </td>
-                </tr>
-                {% endfor %}
-                <tr>
-                    <td></td>
-                    <form class="form-group"
+            {% for op in g.budget.debt_operations_list_inter %}
+            <tr>
+                <td><p class="text-black-50 mb-0">{{g.budget.debt_operations_list_inter.index(op)+1}}</p></td>
+                <td>{{op.creditor.name}}</td><td>{{"{0:8.2f}".format(op.amount)}}</td><td>{{op.debtor.name}}</td>
+                <td>
+                    <form method="post" name="deleteDOI"
+                          action="{{url_for('budget.remove_debt_operation_inter', debt_operation_inter_index=g.budget.debt_operations_list_inter.index(op))}}">
+                        <input type="image" alt="Удалить" title="Удалить"
+                               src="{{url_for('static', filename='cross.png')}}"
+                               class="confirm-required pictobutton"
+                               message="Удалить промежуточную операцию по долгам номер {{g.budget.debt_operations_list_inter.index(op)+1}} ?">
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+            <tr>
+                <td></td>
+                <form class="form-group"
                       method="post" name="addDOI" id="addDOI"
                       action="{{url_for('budget.add_debt_operation_inter')}}">
-                        <td>
-                            <select class="form-control" name="transmitterName" form="addDOI">
-                                <option></option>
-                                {% for person in g.budget.persons_list %}<option>{{person.name}}</option>{% endfor %}
-                            </select>
-                        </td>
-                        <td>
-                            <input class="form-control" name="amount" type="text" size="2" value="0.0">
-                        </td>
-                        <td>
-                            <select class="form-control" name="receiverName" form="addDOI">
-                                <option></option>
-                                {% for person in g.budget.persons_list %}<option>{{person.name}}</option>{% endfor %}
-                            </select>
-                        </td>
-                        <td>
-                            <input name="addDOI" type="image" src="{{url_for('static', filename='plus.png')}}"  alt="Добавить"
-                                   class="pictobutton">
-                        </td>
-                    </form>
-                </tr>
+                    <td>
+                        <select class="form-control" name="transmitterName" form="addDOI">
+                            <option></option>
+                            {% for person in g.budget.persons_list %}<option>{{person.name}}</option>{% endfor %}
+                        </select>
+                    </td>
+                    <td>
+                        <input class="form-control" name="amount" type="text" size="2" value="0.0">
+                    </td>
+                    <td>
+                        <select class="form-control" name="receiverName" form="addDOI">
+                            <option></option>
+                            {% for person in g.budget.persons_list %}<option>{{person.name}}</option>{% endfor %}
+                        </select>
+                    </td>
+                    <td>
+                        <input name="addDOI" type="image" src="{{url_for('static', filename='plus.png')}}"  alt="Добавить"
+                               class="pictobutton">
+                    </td>
+                </form>
+            </tr>
             </tbody>
         </table>
     </div>
 </div>
 
 <!--Долги-->
-<div class="card mb-2">
-        <div class="card-header">
-            <p class="text-center h5 my-0">Долги</p>
-        </div>
-    <div class="card-body justify-content-center">
-        {% if g.budget.debt_operations_list.__len__() > 0 %}
-        <table class="table table-striped table-sm">
-            {% for op in g.budget.debt_operations_list %}
-            <tr>
-                <td>{{op.debtor.name}}</td><td> ===> </td><td>{{op.creditor.name}}</td><td>{{"{0:8.2f}".format(op.amount)}}</td>
-            </tr>
-            {% endfor %}
-        </table>
+<!--<div class="card mb-2">-->
+    <!--<div class="card-header">-->
+        <!--<p class="text-center h5">Долги</p>-->
+    <!--</div>-->
+    <!--<div class="card-body justify-content-center p-1">-->
+        <!--{% if g.budget.debt_operations_list.__len__() > 0 %}-->
+        <!--<table class="table table-striped table-sm">-->
+            <!--{% for op in g.budget.debt_operations_list %}-->
+            <!--<tr>-->
+                <!--<td>{{op.debtor.name}}</td><td> ===> </td><td>{{op.creditor.name}}</td><td>{{"{0:8.2f}".format(op.amount)}}</td>-->
+            <!--</tr>-->
+            <!--{% endfor %}-->
+        <!--</table>-->
 
-        <form class="d-flex flex-wrap justify-content-center"
-              method="post" name="calculatebuttons"
-              action="{{url_for('budget.calculate')}}">
-            <div class="d-flex flex-column">
-                <input class="btn btn-success" name="simple" type="submit" value="Рассчитать аглоритмом АП" class="button">
-                <small class="text-info text-center">АП - алгортим простой</small>
-            </div>
-            <div class="container w-100"></div>
-            <div class="d-flex flex-column mt-1">
-                <input class="btn btn-success" name="monte-carlo" type="submit" value="Рассчитать алгоритмом АВ" class="button">
-                <small class="text-info text-center">АВ - алгоритм вероятностный</small>
-            </div>
-        </form>
-        {% endif %}
-    </div>
-</div>
+        <!--<form class="d-flex flex-wrap justify-content-center"-->
+              <!--method="post" name="calculatebuttons"-->
+              <!--action="{{url_for('budget.calculate')}}">-->
+            <!--<div class="d-flex flex-column">-->
+                <!--<input class="btn btn-success" name="simple" type="submit" value="Рассчитать аглоритмом АП" class="button">-->
+                <!--<small class="text-info text-center">АП - алгортим простой</small>-->
+            <!--</div>-->
+            <!--<div class="container w-100"></div>-->
+            <!--<div class="d-flex flex-column mt-1">-->
+                <!--<input class="btn btn-success" name="monte-carlo" type="submit" value="Рассчитать алгоритмом АВ" class="button">-->
+                <!--<small class="text-info text-center">АВ - алгоритм вероятностный</small>-->
+            <!--</div>-->
+        <!--</form>-->
+        <!--{% endif %}-->
+    <!--</div>-->
+<!--</div>-->
 
 <!--Заголовок бюджета-->
 <div class="d-flex flex-column mt-2">
@@ -277,7 +279,7 @@
                 <input type="image" src="{{url_for('static', filename='ok.png')}}" alt="Ок" class="pictobutton ml-1">
                 <!--<input type="submit" class="btn btn-primary" value="Ок">-->
             </div>
-            <small class="form-text text-primary">Не забудьтье отправить форму</small>
+            <small class="form-text text-primary">Не забудьте отправить форму</small>
         </div>
         <div class="form-group">
 

@@ -215,7 +215,6 @@ class TBudget:
 
         return s
 
-
     # Возвращает общую сумму расходов
     def get_spending_amount_total(self):
         s = 0.00
@@ -313,6 +312,30 @@ class TBudget:
 
         return debt_own
 
+    # Рассчитывает долг person_name. Положительная величина
+    # означает, что person потребил больше, чем потратил.
+    # Не учитываются долги участников, за которых платит person_name,
+    # а также те, кто оплачивает долг person_name
+    def get_debt_for_person_pure(self, person_name):
+        if isinstance(person_name, TPerson):
+            person_name = person_name.name
+
+        # Потребил - потратил
+        debt_own = self.get_consumption_amount_for_person(person_name) - \
+                   self.get_spending_amount_for_person(person_name)
+
+        # Принимал от кого-то промежуточный расчёт
+        for dop in self.debt_operations_list_inter:
+            if dop.debtor.name == person_name:
+                debt_own += dop.amount
+
+        # Отдавал кому-то в промежуточном расчёте
+        for dop in self.debt_operations_list_inter:
+            if dop.creditor.name == person_name:
+                debt_own -= dop.amount
+
+        return debt_own
+
     def get_debt_sum(self):
         s = 0
         for p in self.persons_list:
@@ -342,7 +365,7 @@ class TBudget:
 
         eps_debt = abs(self.get_debt_sum())
         eps_trans = abs(self.get_positive_debt_sum() - self.get_transaction_sum())
-        eps_cons = abs(self.get_consumption_amount_total() - self.get_spending_amount_total() )
+        eps_cons = abs(self.get_consumption_amount_total() - self.get_spending_amount_total())
 
         if (eps_debt < 1e-2) and (eps_trans < 1e-2) and (eps_cons < 1e-2):
             return True

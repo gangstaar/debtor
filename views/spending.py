@@ -1,26 +1,27 @@
-import budget.io as bio
-import budget.types as b
-from budget.io import is_budget_exists
-from flask import render_template, Blueprint, g, request, session, redirect, url_for
 from datetime import datetime as dt
+
+from flask import render_template, Blueprint, g, request, session, redirect, url_for
+
+from budget.io import get_available_budgets
+from budget.types import TSpending
+from views.auth import required_login, get_current_user_path
+from views.budget import required_budget_file, save_current_budget, load_current_budget
 
 bp = Blueprint('spending', __name__)
 
 
 @bp.before_request
+@required_login
+@required_budget_file
 def load():
-    g.saved_budgets = bio.get_available_budgets('./saved_budgets')
+    g.saved_budgets = get_available_budgets(get_current_user_path())
 
-    budget_file = session['budget_file']
-    if (budget_file is None) or (not is_budget_exists(budget_file)):
+    if 'spending_index' not in session:
         return redirect(url_for('main'))
 
     spending_index = session['spending_index']
-    if spending_index is None:
-        return redirect(url_for('main'))
 
-    g.budget_file = budget_file
-    g.budget = bio.load_budget('./saved_budgets/' + budget_file)
+    load_current_budget()
     g.spending_index = spending_index
 
 
@@ -37,7 +38,7 @@ def remove_person(consumer_number=0):
     if index < len(g.budget.current_spending.consumers_list):
         g.budget.current_spending.consumers_list.pop(index)
 
-    bio.save_budget(g.budget, './saved_budgets/' + g.budget_file)
+    save_current_budget()
     return redirect(url_for('spending.edit'))
 
 
@@ -45,7 +46,7 @@ def remove_person(consumer_number=0):
 def add_person():
     if request.form.get('addAll') is not None:
         g.budget.current_spending.add_consumer(g.budget.persons_list, 0)
-        bio.save_budget(g.budget, './saved_budgets/' + g.budget_file)
+        save_current_budget()
 
     if (request.form['name'] is not None) and (request.form['amount'] is not None):
         name = request.form['name']
@@ -57,9 +58,10 @@ def add_person():
             if person is not None:
                 g.budget.current_spending.add_consumer(person, float(request.form['amount']))
 
-        bio.save_budget(g.budget, './saved_budgets/' + g.budget_file)
+        save_current_budget()
 
     return redirect(url_for('spending.edit'))
+
 
 @bp.route('/edit-person=<consumer_number>', methods=['POST'])
 def edit_person(consumer_number=0):
@@ -67,10 +69,11 @@ def edit_person(consumer_number=0):
     if index < len(g.budget.current_spending.consumers_list):
         consumer = g.budget.current_spending.consumers_list.pop(index)
 
-    bio.save_budget(g.budget, './saved_budgets/' + g.budget_file)
+    save_current_budget()
     return render_template('editspending.html', budget=g.budget, budget_file=g.budget_file,
                            spending=g.budget.current_spending,
                            index=g.spending_index, consumer=consumer)
+
 
 @bp.route('/edit-head', methods=['POST'])
 def edit_head():
@@ -88,7 +91,7 @@ def edit_head():
     datetime = dt.now()
 
     try:
-        datetime = datetime.strptime(date, b.TSpending.get_date_format_s())
+        datetime = datetime.strptime(date, TSpending.get_date_format_s())
     except Exception:
         return 'Неверная дата! Пожалуйста, введите дату в формате ДД.ММ.ГГГГ'
 
@@ -106,7 +109,7 @@ def edit_head():
     if person is not None:
         g.budget.current_spending.payer = person
 
-    bio.save_budget(g.budget, './saved_budgets/' + g.budget_file)
+    save_current_budget()
     return redirect(url_for('spending.edit'))
 
 
@@ -117,7 +120,7 @@ def calc():
     if request.form.get('weighted') is not None:
         g.budget.current_spending.calc_weighted()
 
-    bio.save_budget(g.budget, './saved_budgets/' + g.budget_file)
+    save_current_budget()
     return redirect(url_for('spending.edit'))
 
 
@@ -132,7 +135,7 @@ def submit(index='-1'):
         g.budget.add_spending(g.budget.current_spending)
         g.budget.current_spending = None
         g.budget.calc_debt_operations_list()
-        bio.save_budget(g.budget, './saved_budgets/' + g.budget_file)
+        save_current_budget()
 
     if request.form.get('cancel') is not None:
         g.budget.current_spending = None

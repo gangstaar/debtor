@@ -4,6 +4,7 @@ from budget.types import TSpending
 from budget.types import TDebtOperation
 import pathlib
 from datetime import datetime as dt
+import os
 
 
 def get_report(budget, is_long=False):
@@ -416,7 +417,8 @@ def load_budget(file_name):
 
     # Участники бюджета
     lin = f.readline().strip()
-    while (not (lin.startswith('SPENDING_MEMO') or lin.startswith('C_SPENDING_MEMO'))) and (lin != ''):
+    while (not (lin.startswith('SPENDING_MEMO') or lin.startswith('C_SPENDING_MEMO')
+                or lin.startswith('DEBT_OPERATION') )) and (lin != ''):
         lin_spl = lin.split('=')
         p = TPerson(lin_spl[0].strip(), float(lin_spl[1]), lin_spl[2].strip())
         budget.persons_list.append(p)
@@ -471,8 +473,7 @@ def load_budget(file_name):
         lin = f.readline().strip()
         while (not(lin.startswith('SPENDING_MEMO') or
                    lin.startswith('C_SPENDING_MEMO') or
-                   lin.startswith('DEBT_OPERATION') or
-                   lin.startswith('DEBT_OPERATION_INTERMEDIATE')) and
+                   lin.startswith('DEBT_OPERATION')) and
                 (lin != '')):
             consumer_name = lin.split(' = ')[0].strip()
             amount = float(lin.split(' = ')[1])
@@ -518,8 +519,9 @@ def load_budget(file_name):
 
 
 def is_budget_exists(budget_name):
-    saved_budgets = get_available_budgets('./saved_budgets')
-    if budget_name in saved_budgets:
+    path = os.path.dirname(budget_name)
+    saved_budgets = get_available_budgets(path)
+    if os.path.basename(budget_name) in saved_budgets:
         return True
     else:
         return False

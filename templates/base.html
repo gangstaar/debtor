@@ -21,41 +21,59 @@
     <div class="row">
         <div class="col col-sm-4 border bg-light">
             <nav class="navbar navbar-expand-sm navbar-light bg-light flex-column align-items-start">
+                <!--Заголовок-->
                 <div class="container-fluid justify-content-between align-content-center flex-wrap">
                     <a class="navbar-brand" href="{{url_for('main')}}">Должник</a>
-                    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                    <button class="navbar-toggler" type="button" data-toggle="collapse"
+                            data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
+                            aria-expanded="false" aria-label="Toggle navigation">
                         <span class="navbar-toggler-icon"></span>
                     </button>
                 </div>
+                <!--Скрываемый конейнер-->
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     <ul class="navbar-nav mr-auto flex-column">
-                        {% if g.budget_file == '' %}
-                        <li class="nav-item active">
-                        {% else %}
+                        {% if 'user_name' in session: %}
                         <li class="nav-item">
-                        {% endif %}
-                            <a class="nav-link" href="{{url_for('main')}}">Главная</a>
+                            <a class="nav-link" href="#">{{session['user_name']}}</a>
                         </li>
-                        <div class="dropdown">
-                            <a class="btn btn-info dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                         <div class="dropdown">
+                            <a class="btn btn-info dropdown-toggle" href="#" role="button" id="dropdownMenuLink"
+                               data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                 Бюджеты
                             </a>
                             <div class="dropdown-menu" aria-labelledby="navbarDropdown">
                                 {% for budget in g.saved_budgets %}
-                                    {% if g.budget_file == budget %}
-                                        <a class="small dropdown-item active" href="{{url_for('edit_budget', budget_file=budget)}}" title="{{budget[:-4]}}">
-                                            {{budget[:-4]}}
-                                        </a>
-                                    {% else %}
-                                        <a class="small dropdown-item" href="{{url_for('edit_budget', budget_file=budget)}}" title="{{budget[:-4]}}">
-                                            {{budget[:-4]}}
-                                        </a>
-                                    {% endif %}
+                                {% if g.budget_file == budget %}
+                                <a class="small dropdown-item active"
+                                   href="{{url_for('edit_budget', budget_file=budget)}}" title="{{budget[:-4]}}">
+                                    {{budget[:-4]}}
+                                </a>
+                                {% else %}
+                                <a class="small dropdown-item" href="{{url_for('edit_budget', budget_file=budget)}}"
+                                   title="{{budget[:-4]}}">
+                                    {{budget[:-4]}}
+                                </a>
+                                {% endif %}
                                 {% endfor %}
                             </div>
                         </div>
+                        <li class="nav-spacer">
+                        <hr>
+                        </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="#" tabindex="-1" aria-disabled="true">О нас</a>
+                            <a class="nav-link" href="{{url_for('auth.logout')}}">Выйти</a>
+                        </li>
+                        {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{url_for('auth.login')}}">Вход</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{url_for('auth.register')}}">Регистрация</a>
+                        </li>
+                        {% endif %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{url_for('about')}}" tabindex="-1" aria-disabled="true">О нас</a>
                         </li>
                     </ul>
                 </div>
