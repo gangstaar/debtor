@@ -339,16 +339,28 @@ def get_test_budget():
     return budget
 
 
-def get_available_budgets(directory_path='./'):
+def get_available_budgets(directory_path='./', sortByTime=0):
     path = pathlib.Path(directory_path)
     if not path.is_dir():
         return []
 
-    budgets_list = []
+    budget_files_list = []
     for l in path.iterdir():
         if l.is_file():
             if l.name.endswith('.bdg'):
-                budgets_list.append(l.name)
+                budget_files_list.append(l)
+
+    def getFileLastEditTime(file):
+        return file.stat().st_mtime
+
+    if sortByTime == 1:
+        budget_files_list.sort(reverse=True, key=getFileLastEditTime)
+
+    budgets_list = []
+    for file in budget_files_list:
+        budgets_list.append(file.name)
+
+
     return budgets_list
 
 

@@ -26,7 +26,7 @@ if not os.path.exists(user_data_path):
 @app.before_request
 def load_budgets():
     if is_someone_logged_in():
-        g.saved_budgets = get_available_budgets(get_current_user_path())
+        g.saved_budgets = get_available_budgets(get_current_user_path(), 1)
     else:
         g.saved_budgets = []
 
