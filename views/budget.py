@@ -135,7 +135,7 @@ def calculate():
     return redirect(url_for('budget.edit'))
 
 
-@bp.route('/add-spending', methods=['POST'])
+@bp.route('/add-spending', methods=['POST', 'GET'])
 def add_spending():
     g.budget.current_spending = TSpending(TPerson(''), '', 0)
     g.budget.current_spending.date_time = dt.now()

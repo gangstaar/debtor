@@ -45,7 +45,7 @@
                 <div class="col-auto">
                     <div class="form-group">
                         <label for="spendingAmount">Сумма</label>
-                        <input type="text" class="form-control" name="spendingamount" id="spendingAmount"  value="{{spending.amount}}" size="5">
+                        <input type="text" class="form-control" name="spendingamount" id="spendingAmount"  size="5">
                     </div>
                 </div>
             </div>
@@ -62,7 +62,6 @@
                     <div class="form-group">
                         <label for="spendingPayer">Оплатил</label>
                         <select class="form-control" name="spendingpayer" id="spendingPayer">
-                            <option></option>
                             {% for person in budget.persons_list %}
                             <option {% if person.name == spending.payer.name %} selected {% endif %} >{{person.name}}</option>
                             {% endfor %}
@@ -147,7 +146,10 @@
                                 <option>{{person.name}}</option>
                                 {% endif %}
                                 {% endfor %}
-                                <option class="text-primary my-0">Добавить всех</option>
+                                {% if consumer %}
+                                {% else%}
+                                <option selected class="text-primary my-0">Добавить всех</option>
+                                {% endif %}
                             </select>
                         </td>
                         <td>

@@ -41,27 +41,34 @@
         {% if g.budget.spending_list.__len__() == 0 %}
 
         <div class="d-inline-flex flex-row">
-            <p class="text-info mr-1">Нажмите для добавления:</p>
+            <a href="{{url_for('budget.add_spending')}}">
+             <p class="text-primary mr-1">Добавить</p>
+            </a>
+            <!--
             <form method="post" name="addspending"
                   action="{{url_for('budget.add_spending')}}">
                 <input name="addspending" type="image"  alt="Добавить" src="{{url_for('static', filename='plus.png')}}"
                        class="pictobutton">
             </form>
+            -->
         </div>
         {% else %}
         <table class="table table-striped table-sm">
-            <form method="post" name="addspending"
-                  action="{{url_for('budget.add_spending')}}">
                 <td></td>
-                <td></td>
+                <td>
+                    <a href="{{url_for('budget.add_spending')}}">
+                    <p class="text-primary mr-1">Добавить</p>
+                    </a>
+                </td>
                 <td></td>
                 <td></td>
                 <td>
+                    <form method="post" name="addspending" action="{{url_for('budget.add_spending')}}">
                     <input name="addspending" type="image"  alt="Добавить" src="{{url_for('static', filename='plus.png')}}"
                            class="pictobutton">
+                    </form>
                 </td>
 
-            </form>
             {% for s in g.budget.spending_list.__reversed__() %}
             <tr>
                 <form method="post" name="spendingoperation"
@@ -105,7 +112,7 @@
             <p class="text-center h5">Участники</p>
         </a>
     </div>
-    <div class="card-body justify-content-center collapse p-1" id="participants">
+    <div class="card-body justify-content-center p-1" id="participants">
         <table class="table table-striped table-sm">
             <thead class="thead-light">
             <tr>

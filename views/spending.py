@@ -53,6 +53,7 @@ def add_person():
 
         if name == 'Добавить всех':
             g.budget.current_spending.add_consumer(g.budget.persons_list, 0)
+            g.budget.current_spending.calc_average()
         else:
             person = g.budget.get_person_by_name(name)
             if person is not None:

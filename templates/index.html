@@ -2,6 +2,9 @@
 
 {% block header %}
 {% block title %}Главная{% endblock %}
+{% if 'user_name' in session: %}
+ - {{session['user_name']}}
+{% endif %}
 {% endblock %}
 
 {% block content %}
@@ -10,7 +13,17 @@
     <div class="col">
         {% if 'user_name' in session: %}
         <p class="text-center">
-            Для начала создайте новый бюджет или выберете существующий из списка на панели навигации.
+            Для начала выберете существующий бюджет из списка...
+        </p>
+        <div class="list-group">
+        {% for budget in g.saved_budgets %}
+        <a href="{{url_for('edit_budget', budget_file=budget)}}" class="list-group-item list-group-item-action">
+        {{budget[:-4]}}
+        </a>
+        {% endfor %}
+        </div>
+        <p class="text-center">
+            ... или создайте новый бюджет
         </p>
         <form method="post" action="{{url_for('main')}}">
             <div class="d-flex flex-column align-items-center flex-fill">
