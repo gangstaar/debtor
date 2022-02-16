@@ -45,10 +45,10 @@
                 <div class="col-auto">
                     <div class="form-group">
                         <label for="spendingAmount">Сумма</label>
-                        {% if spending.consumers_list.__len__() > 0 %}
-                        <input type="text" class="form-control" name="spendingamount" id="spendingAmount" value="{{spending.amount}}" size="5">
-                        {% else %}
+                        {% if spending.amount = 0 %}
                         <input type="text" class="form-control" name="spendingamount" id="spendingAmount" size="5">
+                        {% else %}
+                        <input type="text" class="form-control" name="spendingamount" id="spendingAmount" value="{{spending.amount}}" size="5">
                         {% endif %}
                     </div>
                 </div>
