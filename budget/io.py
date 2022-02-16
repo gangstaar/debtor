@@ -353,8 +353,11 @@ def get_available_budgets(directory_path='./', sortByTime=0):
     def getFileLastEditTime(file):
         return file.stat().st_mtime
 
+    def getFileBirthTime(file):
+        return file.stat().st_ctime
+
     if sortByTime == 1:
-        budget_files_list.sort(reverse=True, key=getFileLastEditTime)
+        budget_files_list.sort(reverse=True, key=getFileBirthTime)
 
     budgets_list = []
     for file in budget_files_list:

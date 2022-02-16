@@ -51,7 +51,7 @@ def add_person():
     if (request.form['name'] is not None) and (request.form['amount'] is not None):
         name = request.form['name']
 
-        if name == 'Добавить всех':
+        if name == 'Все':
             g.budget.current_spending.add_consumer(g.budget.persons_list, 0)
             g.budget.current_spending.calc_average()
         else:
