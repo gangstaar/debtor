@@ -1,6 +1,8 @@
 from flask import render_template, Blueprint, request, session, redirect, url_for
 from functools import wraps
 
+from budget.io import get_available_budgets
+
 from auth_utils import check_user_exists, check_user_without_password, register_new_user, check_user_password,\
                         get_user_path
 
@@ -78,7 +80,11 @@ def login():
 
         if check_user_password(name, password):
             session['user_name'] = name
-            return redirect(url_for('main'))
+            budgets_list = get_available_budgets(get_current_user_path(), 1)
+            if budgets_list.__len__() > 0:
+                return redirect(url_for('edit_budget', budget_file=budgets_list[0]))
+            else:
+                return redirect(url_for('main'))
         else:
             return "Ошибка: неверный пароль!"
 
