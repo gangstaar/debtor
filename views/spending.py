@@ -82,6 +82,7 @@ def edit_head():
     memo = request.form['spendingmemo']
     payer = request.form['spendingpayer']
     date = request.form['spendingdate']
+    attr_memo = request.form['spendingattr']
 
     if (amount is None) or (memo is None) or (payer is None) or (date is None):
         return 'Неверный запрос'
@@ -109,6 +110,8 @@ def edit_head():
     person = g.budget.get_person_by_name(payer)
     if person is not None:
         g.budget.current_spending.payer = person
+
+    g.budget.current_spending.attr.memo = attr_memo
 
     save_current_budget()
     return redirect(url_for('spending.edit'))

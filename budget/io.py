@@ -1,6 +1,6 @@
 from budget.types import TBudget
 from budget.types import TPerson
-from budget.types import TSpending
+from budget.types import TSpending, TSpendingAttr
 from budget.types import TDebtOperation
 import pathlib
 from datetime import datetime as dt
@@ -386,6 +386,11 @@ def save_budget(budget, file_name='budget.bdg'):
         f.write('\n SPENDING_AMOUNT = ' + '{0:12.6f}'.format(sp.amount))
         for p in sp.consumers_list:
             f.write('\n ' + '{0:10s}'.format(p.person.name) + ' = ' + '{0:12.6f}'.format(p.amount))
+        f.write('\n SPENDING_ATTR_KEY = ' + '{0:8d}'.format(sp.attr.key))
+        f.write('\n SPENDING_ATTR_MEMO = ' + '{0:20s}'.format(sp.attr.memo))
+        f.write('\n SPENDING_ATTR_COLOR = ' +   '{0:04.2f}'.format(sp.attr.colorRGB[0]) +
+                                                ' {0:04.2f}'.format(sp.attr.colorRGB[1]) +
+                                                ' {0:04.2f}'.format(sp.attr.colorRGB[2]))
 
     if budget.current_spending is not None:
         sp = budget.current_spending
@@ -395,6 +400,11 @@ def save_budget(budget, file_name='budget.bdg'):
         f.write('\n SPENDING_AMOUNT = ' + '{0:12.6f}'.format(sp.amount))
         for p in sp.consumers_list:
             f.write('\n ' + '{0:10s}'.format(p.person.name) + ' = ' + '{0:12.6f}'.format(p.amount))
+        f.write('\n SPENDING_ATTR_KEY = ' + '{0:8d}'.format(sp.attr.key))
+        f.write('\n SPENDING_ATTR_MEMO = ' + '{0:20s}'.format(sp.attr.memo))
+        f.write('\n SPENDING_ATTR_COLOR = ' +   '{0:04.2f}'.format(sp.attr.colorRGB[0]) +
+                                                ' {0:04.2f}'.format(sp.attr.colorRGB[1]) +
+                                                ' {0:04.2f}'.format(sp.attr.colorRGB[2]))
 
     for debt_o in budget.debt_operations_list_inter:
         f.write('\nDEBT_OPERATION_INTERMEDIATE')
@@ -488,13 +498,31 @@ def load_budget(file_name):
         lin = f.readline().strip()
         while (not(lin.startswith('SPENDING_MEMO') or
                    lin.startswith('C_SPENDING_MEMO') or
-                   lin.startswith('DEBT_OPERATION')) and
+                   lin.startswith('DEBT_OPERATION') or
+                   lin.startswith('SPENDING_ATTR_KEY')) and
                 (lin != '')):
             consumer_name = lin.split(' = ')[0].strip()
             amount = float(lin.split(' = ')[1])
             consumer = budget.get_person_by_name(consumer_name)
             spending.add_consumer(consumer, amount)
             lin = f.readline().strip()
+
+        # Атрибуты
+        attr = TSpendingAttr()
+        if lin.startswith('SPENDING_ATTR_KEY'):
+            attr.key = int(lin.split(' = ')[1])
+            lin = f.readline().strip()
+            val = lin.split(' = ')
+            if val.__len__() > 1:
+                attr.memo = val[1].strip()
+            else:
+                attr.memo = ''
+            lin = f.readline().strip()
+            colors = lin.split(' = ')[1].split(' ')
+            attr.colorRGB = [float(colors[0]), float(colors[1]), float(colors[2])]
+            lin = f.readline().strip()
+
+        spending.set_attr(attr)
 
         if is_c_spending:
             budget.current_spending = spending

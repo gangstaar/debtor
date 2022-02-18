@@ -27,13 +27,25 @@ class TConsumer:
         self.spending = spending  # type: TSpending
 
 
+class TSpendingAttr:
+    def __init__(self, key=None, color_rgb=None, memo=''):
+        if color_rgb is None:
+            color_rgb = [0.3, 0.3, 0.3]
+        self.colorRGB = color_rgb
+        self.memo = memo
+        if key is None:
+            key = -1
+        self.key = key
+
+
 class TSpending:
-    def __init__(self, payer, memo='', amount=0.0, date_time=dt(2019, 1, 1, 0, 0, 0)):
+    def __init__(self, payer, memo='', amount=0.0, date_time=dt(2019, 1, 1, 0, 0, 0), attr=TSpendingAttr()):
         self.memo = memo
         self.payer = payer  # type: TPerson
         self.amount = amount
         self.consumers_list = []  # type: List[TConsumer]
         self.date_time = date_time  # type: datetime
+        self.attr = attr  # type : TSpendingAttr
 
     @staticmethod
     def get_datetime_format_s():
@@ -42,6 +54,12 @@ class TSpending:
     @staticmethod
     def get_date_format_s():
         return '%d.%m.%Y'
+
+    def set_attr(self, attr):
+        self.attr = attr
+
+    def get_attr(self):
+        return self.attr
 
     def get_date_s(self):
         return self.date_time.strftime(self.get_date_format_s())
@@ -134,6 +152,24 @@ class TBudget:
             if p.name == person_name:
                 return p
         return None
+
+    def get_spendings_by_attr(self, attr):
+        # type: (TSpendingAttr) -> List[TSpending]
+        ret_list = []
+        for s in self.spending_list:
+            if attr.key == s.attr.key:
+                ret_list.append(s)
+
+        return ret_list
+
+    def get_all_attrs(self):
+        ret_list = []  # type: List[TSpendingAttr]
+
+        for s in self.spending_list:
+            if s not in ret_list:
+                ret_list.append(s)
+
+        return ret_list
 
     def is_participant(self, person_name):
         if isinstance(person_name, TPerson):
