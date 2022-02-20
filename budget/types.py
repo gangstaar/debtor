@@ -168,14 +168,29 @@ class TBudget:
                 return p
         return None
 
-    def get_spendings_by_attr(self, attr):
-        # type: (TSpendingAttr) -> List[TSpending]
-        ret_list = []
+    def get_spendings_amount_by_attr(self, attr):
+        # type: (TSpendingAttr) -> float
+        ret = 0.0
         for s in self.spending_list:
-            if attr.key == s.attr.key:
-                ret_list.append(s)
+            if attr.compare(attr, s.attr):
+                ret = ret + s.amount
 
-        return ret_list
+        return ret
+
+    def get_spendings_amount_by_attr_for_person(self, attr, person_name):
+        # type: (TSpendingAttr, TPerson) -> float
+
+        if isinstance(person_name, TPerson):
+            person_name = person_name.name
+
+        ret = 0.0
+        for s in self.spending_list:
+            if attr.compare(attr, s.attr):
+                consumption = s.get_consumption_for_person(person_name)
+                if consumption is not None:
+                    ret = ret + consumption.amount
+
+        return ret
 
     def get_all_attrs(self):
         ret_list = []  # type: List[TSpendingAttr]

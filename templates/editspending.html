@@ -62,23 +62,27 @@
                 </div>
                 <div class="col-auto">
                     <div class="d-flex justify-center align-items-end">
-
+                            <!-- Тэг -->
                             <div class="form-group">
                                 <label for="spendingAttr">
-
+                                    {% if budget.get_all_attrs().__len__() == 0 %}
+                                    Тэг
+                                    {% else %}
                                     <div class="dropdown">
-                                    <a type="text" class="text text-info dropdown-toggle" href="#" role="button" id="dropdownMenuLink"
-                                       data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" value="...">Тэг</a>
-                                    <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                                        {% for attr in budget.get_all_attrs() %}
-                                        <input type="submit" class="small dropdown-item" name="spendingattrexisting"
-                                           value="{{attr.memo}}">
-                                        {% endfor %}
+                                        <a type="text" class="text text-info dropdown-toggle" href="#" role="button" id="dropdownMenuLink"
+                                           data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" value="...">Тэг</a>
+                                        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                                            {% for attr in budget.get_all_attrs() %}
+                                            <input type="submit" class="small dropdown-item" name="spendingattrexisting"
+                                               value="{{attr.memo}}">
+                                            {% endfor %}
+                                        </div>
                                     </div>
-                                </div>
+                                    {% endif %}
                                 </label>
                                 <input type="text" class="form-control" name="spendingattr" id="spendingAttr"  value="{{spending.attr.memo}}">
                             </div>
+
 
 
                     </div>

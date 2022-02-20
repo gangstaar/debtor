@@ -202,11 +202,62 @@
                     </tbody>
                 </table>
 
+                <!--Потребления по тэгам-->
+                <p class="text-center h6">Потребление {{p.name}} по тэгам</p>
+                <table class="table table-striped table-sm">
+                    <tbody>
+                    {% for attr in budget.get_all_attrs() %}
+                    <tr>
+                        <td><p class="text-black-50 mb-0">{{ loop.index0+1 }}</p></td>
+                        <td>
+                            <div class="d-flex flex-column">
+                                <div>
+                                    <small>{{attr.memo}}</small>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="align-middle">
+                            {{'{0:8.2f}'.format(budget.get_spendings_amount_by_attr_for_person(attr, p.name))}}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+
             </div>
         </div>
         {% endfor %}
     </div>
 </div>
+
+<!--По категориям-->
+{% if budget.get_all_attrs().__len__() > 0 %}
+<div class="card">
+    <div class="card-header">
+        <p class="text-center text-info my-0 h5">
+            <a data-toggle="collapse" href="#cathegorycard">
+                Тэги
+            </a>
+        </p>
+    </div>
+    <div class="card-body collapse" id="cathegorycard">
+    <table class="table table-striped table-sm">
+    <tbody>
+        <!--Цикл по каждой категории-->
+        {% for attr in budget.get_all_attrs() %}
+            <tr>
+                <!--<th scope="row">{{attr.memo}}</th>-->
+                <td>{{attr.memo}}</td>
+                <td>
+                    {{'{0:8.2f}'.format(budget.get_spendings_amount_by_attr(attr))}}
+                </td>
+            </tr>
+        {% endfor %}
+    </tbody>
+    </table>
+    </div>
+</div>
+{% endif %}
 
 <!--Суммарная информация-->
 <div class="card my-3">
