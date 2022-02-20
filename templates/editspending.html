@@ -61,12 +61,40 @@
                     </div>
                 </div>
                 <div class="col-auto">
-                    <div class="form-group">
-                        <label for="spendingAttr">Тэг</label>
-                        <input type="text" class="form-control" name="spendingattr" id="spendingAttr"  value="{{spending.attr.memo}}">
+                    <div class="d-flex justify-center align-items-end">
+
+                            <div class="form-group">
+                                <label for="spendingAttr">
+
+                                    <div class="dropdown">
+                                    <a type="text" class="text text-info dropdown-toggle" href="#" role="button" id="dropdownMenuLink"
+                                       data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" value="...">Тэг</a>
+                                    <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                                        {% for attr in budget.get_all_attrs() %}
+                                        <input type="submit" class="small dropdown-item" name="spendingattrexisting"
+                                           value="{{attr.memo}}">
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                                </label>
+                                <input type="text" class="form-control" name="spendingattr" id="spendingAttr"  value="{{spending.attr.memo}}">
+                            </div>
+
+
                     </div>
                 </div>
             </div>
+<!--
+            <div class="row">
+                <div class="col-auto">
+                    {% for attr in budget.get_all_attrs() %}
+                    <button type="button" class="btn btn-primary">{{attr.memo}}</button>
+                    {% endfor %}
+                </div>
+            </div>
+            -->
+
+
             <div class="row align-items-center">
                 <div class="col-auto">
                     <div class="form-group">
@@ -81,7 +109,10 @@
                 </div>
                 <div class="col-auto">
                     <div class="form-group mx-1 align-self-center">
+                        <!-- Ок в виде галочки
                         <input type="image" alt="Ок" src="{{url_for('static', filename='ok.png')}}" class="pictobutton">
+                        -->
+                        <input class="form-control btn-success" name="ok" type="submit" value="Ок">
                     </div>
                 </div>
             </div>

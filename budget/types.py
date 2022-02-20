@@ -37,6 +37,21 @@ class TSpendingAttr:
             key = -1
         self.key = key
 
+    @staticmethod
+    def compare(self, other):
+        # type: (TSpendingAttr) -> int
+
+        if self.memo != other.memo:
+            return False
+
+        if self.colorRGB != other.colorRGB:
+            return False
+
+        if self.key != other.key:
+            return False
+
+        return True
+
 
 class TSpending:
     def __init__(self, payer, memo='', amount=0.0, date_time=dt(2019, 1, 1, 0, 0, 0), attr=TSpendingAttr()):
@@ -166,8 +181,18 @@ class TBudget:
         ret_list = []  # type: List[TSpendingAttr]
 
         for s in self.spending_list:
-            if s not in ret_list:
-                ret_list.append(s)
+            if len(s.attr.memo) == 0:
+                continue
+
+            if len(ret_list) == 0:
+                ret_list.append(s.attr)
+                continue
+
+            def compare(item):
+                return s.attr.compare(s.attr, item)
+
+            if len(list(filter(compare, ret_list))) == 0:
+                ret_list.append(s.attr)
 
         return ret_list
 

@@ -82,10 +82,15 @@ def edit_head():
     memo = request.form['spendingmemo']
     payer = request.form['spendingpayer']
     date = request.form['spendingdate']
-    attr_memo = request.form['spendingattr']
+    spendingattr = request.form['spendingattr']
+    if 'spendingattrexisting' in request.form:
+        spendingattr = request.form['spendingattrexisting']
 
     if (amount is None) or (memo is None) or (payer is None) or (date is None):
         return 'Неверный запрос'
+
+    if memo == '':
+        return 'Поле "Описание" не должно быть пустым!'
 
     if not amount.replace('.', '1').isdigit():
         return 'В поле "Сумма" должно быть число!'
@@ -111,7 +116,7 @@ def edit_head():
     if person is not None:
         g.budget.current_spending.payer = person
 
-    g.budget.current_spending.attr.memo = attr_memo
+    g.budget.current_spending.attr.memo = spendingattr
 
     save_current_budget()
     return redirect(url_for('spending.edit'))
