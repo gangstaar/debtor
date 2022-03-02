@@ -374,7 +374,7 @@ def save_budget(budget, file_name='budget.bdg'):
     if not file_name.endswith('.bdg'):
         file_name += '.bdg'
 
-    f = open(file_name, 'w')
+    f = open(file_name, 'w', encoding='utf-8')
     f.write('BUDGET_MEMO = ' + '{0:20s}'.format(budget.memo))
     for p in budget.persons_list:
         f.write('\n ' + '{0:10s}'.format(p.name) + ' = {0:4.3f}'.format(p.weight) + ' = {0:8s}'.format(p.pays_for))
@@ -430,7 +430,7 @@ def load_budget(file_name):
     if not pathlib.Path(file_name).is_file():
         return TBudget()
 
-    f = open(file_name, 'r')
+    f = open(file_name, 'r', encoding='utf-8')
 
     # Название бюджета
     lin = f.readline().rstrip().split('=')

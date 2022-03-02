@@ -171,9 +171,18 @@ class TBudget:
     def get_spendings_amount_by_attr(self, attr):
         # type: (TSpendingAttr) -> float
         ret = 0.0
+        spendings = self.get_spendings_by_attr(attr)
+        for s in spendings:
+            ret = ret + s.amount
+
+        return ret
+
+    def get_spendings_by_attr(self, attr):
+        # type: (TSpendingAttr) -> float
+        ret = []
         for s in self.spending_list:
             if attr.compare(attr, s.attr):
-                ret = ret + s.amount
+                ret.append(s)
 
         return ret
 

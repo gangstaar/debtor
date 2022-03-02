@@ -186,8 +186,13 @@
                             </div>
                         </td>
                         <td class="align-middle">
-                            {{'{0:8.2f}'.format(c.amount)}}
-                        </td>
+                        <div>
+                            <p class="text-success mb-0">{{'{0:8.2f}'.format(c.amount)}}</p>
+                        </div>
+                        <div>
+                            <small class="text-info">{{c.spending.attr.memo}}</small>
+                        </div>
+                    </td>
                         <td class="align-middle">
                             <p class="text-body mb-0">{{c.spending.payer.name}}</p>
                         </td>
@@ -212,13 +217,16 @@
                         <td>
                             <div class="d-flex flex-column">
                                 <div>
-                                    <small>{{attr.memo}}</small>
+                                    <b>{{attr.memo}}</b>
                                 </div>
                             </div>
                         </td>
                         <td class="align-middle">
+                            <b>
                             {{'{0:8.2f}'.format(budget.get_spendings_amount_by_attr_for_person(attr, p.name))}}
+                            </b>
                         </td>
+                        <td></td>
                     </tr>
                     {% endfor %}
                     </tbody>
@@ -241,20 +249,54 @@
         </p>
     </div>
     <div class="card-body collapse" id="cathegorycard">
-    <table class="table table-striped table-sm">
-    <tbody>
+
         <!--Цикл по каждой категории-->
         {% for attr in budget.get_all_attrs() %}
-            <tr>
-                <!--<th scope="row">{{attr.memo}}</th>-->
-                <td>{{attr.memo}}</td>
-                <td>
-                    {{'{0:8.2f}'.format(budget.get_spendings_amount_by_attr(attr))}}
-                </td>
-            </tr>
-        {% endfor %}
-    </tbody>
+        <div class="card-header">
+         <p class="text-center text-info my-0">
+                    <a data-toggle="collapse" href="#attr_{{attr.memo}}">
+                    {{attr.memo}}
+
+             - {{'{0:8.2f}'.format(budget.get_spendings_amount_by_attr(attr))}}
+                        </a>
+         </p>
+        </div>
+
+            <div class="card-body collapse" id="attr_{{attr.memo}}">
+                <table class="table table-striped table-sm">
+                <tbody>
+            {% for s in budget.get_spendings_by_attr(attr) %}
+                <tr>
+                    <td class="align-middle"><p class="text-black-50 mb-0">{{budget.get_spendings_by_attr(attr).index(s)+1}}</p></td>
+                    <td>
+                        <div class="d-flex flex-column">
+                            <div>{{s.memo}}</div>
+                            <div><small class="text-info">{{s.date_time.strftime('%d.%m.%y')}}</small> </div>
+                        </div>
+                    </td>
+                    <td class="align-middle">
+                        <div>
+                            <p class="text-success mb-0">{{s.amount}}</p>
+                        </div>
+                        <div>
+                            <small class="text-info">{{s.attr.memo}}</small>
+                        </div>
+                    </td>
+                    <td class="align-middle">
+                        <p class="text-body mb-0">{{s.payer.name}}</p>
+                    </td>
+                </tr>
+            {% endfor %}
+                <tr>
+                        <td></td>
+                        <td><b>Всего</b></td>
+                        <td>{{'{0:8.2f}'.format(budget.get_spendings_amount_by_attr(attr))}}</td>
+                        <td></td>
+                    </tr>
+        </tbody>
     </table>
+                </div>
+        {% endfor %}
     </div>
 </div>
 {% endif %}

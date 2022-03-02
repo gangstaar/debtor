@@ -64,6 +64,7 @@
                     <div class="d-flex justify-center align-items-end">
                             <!-- Тэг -->
                             <div class="form-group">
+                                <!--
                                 <label for="spendingAttr">
                                     {% if budget.get_all_attrs().__len__() == 0 %}
                                     Тэг
@@ -81,10 +82,24 @@
                                     {% endif %}
                                 </label>
                                 <input type="text" class="form-control" name="spendingattr" id="spendingAttr"  value="{{spending.attr.memo}}">
+                                -->
+                                <label for="spendingAttr"> Тэг </label>
+                                <div class="input-group mb-3">
+                                    {% if budget.get_all_attrs().__len__() > 0 %}
+                                    <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown" aria-expanded="false">...</button>
+                                    <ul class="dropdown-menu">
+                                        {% for attr in budget.get_all_attrs() %}
+                                            <li>
+                                            <input type="submit" class="dropdown-item" name="spendingattrexisting" value="{{attr.memo}}">
+                                            </li>
+                                        {% endfor %}
+                                    </ul>
+                                    {% endif %}
+                                  <input type="text" class="form-control" name="spendingattr" id="spendingAttr"  value="{{spending.attr.memo}}">
+                                </div>
+
+
                             </div>
-
-
-
                     </div>
                 </div>
             </div>
