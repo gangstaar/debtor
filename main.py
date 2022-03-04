@@ -85,6 +85,17 @@ def print_budget(budget_file=None):
     budget = load_budget(get_current_user_path() + budget_file)
     g.budget_file = budget_file
 
+    # for p in budget.persons_list:
+    #     debts = budget.get_debts_to_other_persons(p)
+    #     if debts is not None:
+    #         for d in debts:
+    #             if d.debtor.name == p.name:
+    #                 print('{0:8s}'.format(p.name) + ' в долгу перед ' + '{0:8s}: '.format(
+    #                     d.creditor.name) + '{0:8.2f}'.format(d.amount))
+    #             if d.creditor.name == p.name:
+    #                 print('{0:8s}'.format(p.name) + ' кредитует     ' + '{0:8s}: '.format(
+    #                     d.debtor.name) + '{0:8.2f}'.format(d.amount))
+
     return render_template('report.html', budget=budget, budget_file=budget_file)
 
 

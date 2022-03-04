@@ -201,14 +201,16 @@
                     <tr>
                         <td></td>
                         <td><b>Всего</b></td>
-                        <td>{{'{0:8.2f}'.format(budget.get_consumption_amount_for_person(p.name))}}</td>
+                        <td><p class="text-success mb-0">{{'{0:8.2f}'.format(budget.get_consumption_amount_for_person(p.name))}}</p></td>
                         <td></td>
                     </tr>
                     </tbody>
                 </table>
 
+
+                {% if budget.get_all_attrs().__len__() > 0 %}
                 <!--Потребления по тэгам-->
-                <p class="text-center h6">Потребление {{p.name}} по тэгам</p>
+                <p class="text-center h6">Сумма потребления {{p.name}} по тэгам</p>
                 <table class="table table-striped table-sm">
                     <tbody>
                     {% for attr in budget.get_all_attrs() %}
@@ -217,20 +219,19 @@
                         <td>
                             <div class="d-flex flex-column">
                                 <div>
-                                    <b>{{attr.memo}}</b>
+                                    <p class="text-info"> {{attr.memo}} </p>
                                 </div>
                             </div>
                         </td>
                         <td class="align-middle">
-                            <b>
                             {{'{0:8.2f}'.format(budget.get_spendings_amount_by_attr_for_person(attr, p.name))}}
-                            </b>
                         </td>
                         <td></td>
                     </tr>
                     {% endfor %}
                     </tbody>
                 </table>
+                {% endif %}
 
             </div>
         </div>
@@ -390,6 +391,57 @@
             </tr>
             {% endfor %}
         </table>
+        {% endif %}
+    </div>
+</div>
+
+<!--Попарные расчёты-->
+<div class="card my-3">
+    <div class="card-header">
+        <p class="text-center text-info my-0">
+        <a data-toggle="collapse" href="#pairDebtsInfo">
+            Попарные расчёты
+        </a>
+        </p>
+    </div>
+    <div class="card-body justify-content-center collapse" id="pairDebtsInfo">
+        {% if (budget.persons_list.__len__() > 0 and budget.spending_list.__len__() > 0) %}
+        <small class="text-info text-justify">
+            Расчёт между каждой парой участников осуществляется с учётом потреблений, трат и промежуточных операций
+            по долгам каждого из участников, но без учёта обязательств по оплате долгов одних участников другими.
+        </small>
+
+        <div class="card my-3">
+        <table class="table table-striped table-sm">
+            {% for p in budget.persons_list %}
+            {% for d in budget.get_debts_to_other_persons(p) %}
+            <tr>
+                <td>{{p.name}}</td>
+
+                {% if d.debtor.name == p.name %}
+                <td> в долгу перед </td>
+                <td>{{d.creditor.name}}</td>
+                <td><p class="text-danger mb-0">{{"{0:8.2f}".format(d.amount)}}</p></td>
+                {% endif %}
+                {% if d.creditor.name == p.name %}
+                <td> кредитует </td>
+                <td>{{d.debtor.name}}</td>
+                <td><p class="text-success mb-0">{{"{0:8.2f}".format(d.amount)}}</p></td>
+                {% endif %}
+
+            </tr>
+            {% endfor %}
+
+            <!-- Не рисовать горизонтальную линию после последнего участника -->
+            {% if budget.persons_list.index(p)+1 < budget.persons_list.__len__() %}
+            <tr>
+                <td colspan="4"> <p class="text-center text-info my-0"> <hr> </p>  </td>
+            </tr>
+            {% endif %}
+
+            {% endfor %}
+        </table>
+        </div>
         {% endif %}
     </div>
 </div>

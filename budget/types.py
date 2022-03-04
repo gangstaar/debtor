@@ -369,7 +369,7 @@ class TBudget:
 
         # Потребил - потратил
         debt_own = self.get_consumption_amount_for_person(person_name) - \
-            self.get_spending_amount_for_person(person_name)
+                   self.get_spending_amount_for_person(person_name)
 
         # Если за person кто-то платит и person кому-то должен
         if self.get_person_name_who_pays_for(person_name) != '' and debt_own > 0:
@@ -381,7 +381,7 @@ class TBudget:
         if p.pays_for != '':
             person_for = p.pays_for
             debt_for = self.get_consumption_amount_for_person(person_for) - \
-                self.get_spending_amount_for_person(person_for)
+                       self.get_spending_amount_for_person(person_for)
             if debt_for > 0.0:
                 debt_own += debt_for
 
@@ -420,6 +420,51 @@ class TBudget:
                 debt_own -= dop.amount
 
         return debt_own
+
+    # Получить список расчётов между person_name и
+    # другими участниками бюджета.
+    # Не учитывается факт того, что person_name
+    # платит за кого-то или что кто-то платит за person_name
+    def get_debts_to_other_persons(self, person_name):
+        #  type: (str) -> List[TDebtOperation]
+        if isinstance(person_name, TPerson):
+            person_name = person_name.name
+
+        debts_list = []
+        for p in self.persons_list:
+            # Пропуск расчётов по отношению к самому себе
+            if person_name == p.name:
+                continue
+
+            d = 0
+            for s in self.spending_list:
+                # Если person_name оплатил трату
+                if s.payer.name == person_name:
+                    # Вычесть из долга person_name перед p сумму потребления p в этой трате
+                    d = d - s.get_consumption_amount_for_person(p.name)
+                else:
+                    # Если p оплатил трату
+                    if s.payer.name == p.name:
+                        # Добавить к долгу person_name перед p сумму потребления person_name в этой трате
+                        d = d + s.get_consumption_amount_for_person(person_name)
+
+            for dop in self.debt_operations_list_inter:
+                # Если имела место промежуточная операция по принятию person_name от p
+                if dop.debtor.name == person_name and dop.creditor.name == p.name:
+                    d += dop.amount
+
+                # Если имела место промежуточная операция по передачи от person_name к p
+                if dop.creditor.name == person_name and dop.debtor.name == p.name:
+                    d -= dop.amount
+
+            if d > 0:
+                # Положительные долги добавляются в конец
+                debts_list.append(TDebtOperation(self.get_person_by_name(person_name), p, d))
+            if d < 0:
+                # Отрицательные долги добавляются в начало
+                debts_list.insert(0, TDebtOperation(p, self.get_person_by_name(person_name), abs(d)))
+
+        return debts_list
 
     def get_debt_sum(self):
         s = 0
