@@ -46,9 +46,9 @@
                     <div class="form-group">
                         <label for="spendingAmount">Сумма</label>
                         {% if spending.amount == 0 %}
-                        <input type="text" class="form-control" name="spendingamount" id="spendingAmount" size="5">
+                        <input type="text" class="form-control" name="spendingamount" id="spendingAmount" inputmode="decimal" size="5">
                         {% else %}
-                        <input type="text" class="form-control" name="spendingamount" id="spendingAmount" value="{{spending.amount}}" size="5">
+                        <input type="text" class="form-control" name="spendingamount" id="spendingAmount" inputmode="decimal" value="{{spending.amount}}" size="5">
                         {% endif %}
                     </div>
                 </div>
