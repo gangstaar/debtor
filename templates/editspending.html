@@ -18,137 +18,114 @@
 {% block content %}
 
 <!--Заголовок-->
-<div class="card ">
+<div class="card">
     <div class="card-header">
         <p class="text-center h5">
             <a data-toggle="collapse" href="#headerBodyCard">
-                Заголовок
+                Шаг 1. Заголовок
             </a>
         </p>
     </div>
 
-    {% if spending.consumers_list.__len__() > 0 %}
+    {% if spending.amount > 0 %}
     <div class="card-body collapse" id="headerBodyCard">
     {% else %}
     <div class="card-body collapse show" id="headerBodyCard">
     {% endif %}
         <form name="editspendinghead" method="post" id="editspendinghead"
               action="{{url_for('spending.edit_head')}}">
-            <div class="row justify-content-start">
-                <div class="col-auto">
-                    <div class="form-group">
+
+            <!-- Сумма и Дата -->
+            <div class="container">
+                <div class="row flex-nowrap">
+                    <div class="col-sm">
+                        <label for="spendingAmount">Сумма</label>
+                    </div>
+                    <div class="col-sm">
                         <label for="spendingDate">Дата</label>
-                        <input type="text" class="form-control" name="spendingdate" id="spendingDate"  value="{{spending.get_date_s()}}" size="5">
-                        <small class="form-text text-muted">Формат: ДД.ММ.ГГГГ</small>
                     </div>
                 </div>
-                <div class="col-auto">
-                    <div class="form-group">
-                        <label for="spendingAmount">Сумма</label>
+                <div class="row flex-nowrap">
+                    <div class="col-sm">
                         {% if spending.amount == 0 %}
                         <input type="text" class="form-control" name="spendingamount" id="spendingAmount" inputmode="decimal" size="5">
                         {% else %}
                         <input type="text" class="form-control" name="spendingamount" id="spendingAmount" inputmode="decimal" value="{{spending.amount}}" size="5">
                         {% endif %}
                     </div>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-sm">
-                    <div class="form-group">
-                        <label for="spendingMemo">Описание</label>
-                        <input type="text" class="form-control" name="spendingmemo" id="spendingMemo"  value="{{spending.memo}}">
+                    <div class="col-sm">
+                         <input type="text" class="form-control" name="spendingdate" id="spendingDate"  value="{{spending.get_date_s()}}" size="5">
                     </div>
                 </div>
-                <div class="col-auto">
-                    <div class="d-flex justify-center align-items-end">
-                            <!-- Тэг -->
-                            <div class="form-group">
-                                <!--
-                                <label for="spendingAttr">
-                                    {% if budget.get_all_attrs().__len__() == 0 %}
-                                    Тэг
-                                    {% else %}
-                                    <div class="dropdown">
-                                        <a type="text" class="text text-info dropdown-toggle" href="#" role="button" id="dropdownMenuLink"
-                                           data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" value="...">Тэг</a>
-                                        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                                            {% for attr in budget.get_all_attrs() %}
-                                            <input type="submit" class="small dropdown-item" name="spendingattrexisting"
-                                               value="{{attr.memo}}">
-                                            {% endfor %}
-                                        </div>
-                                    </div>
-                                    {% endif %}
-                                </label>
-                                <input type="text" class="form-control" name="spendingattr" id="spendingAttr"  value="{{spending.attr.memo}}">
-                                -->
-                                <label for="spendingAttr"> Тэг </label>
-                                <div class="input-group mb-3">
-                                    {% if budget.get_all_attrs().__len__() > 0 %}
-                                    <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown" aria-expanded="false">...</button>
-                                    <ul class="dropdown-menu">
-                                        {% for attr in budget.get_all_attrs() %}
-                                            <li>
-                                            <input type="submit" class="dropdown-item" name="spendingattrexisting" value="{{attr.memo}}">
-                                            </li>
-                                        {% endfor %}
-                                    </ul>
-                                    {% endif %}
-                                  <input type="text" class="form-control" name="spendingattr" id="spendingAttr"  value="{{spending.attr.memo}}">
-                                </div>
-
-
-                            </div>
+                <div class="row flex-nowrap">
+                    <div class="col-6 offset-6">
+                        <small class="form-text text-muted">Формат: ДД.ММ.ГГГГ</small>
                     </div>
                 </div>
             </div>
-<!--
-            <div class="row">
-                <div class="col-auto">
-                    {% for attr in budget.get_all_attrs() %}
-                    <button type="button" class="btn btn-primary">{{attr.memo}}</button>
-                    {% endfor %}
+
+            <!-- Описание и Тэг -->
+            <div class="col-auto mt-4">
+                <div class="row justify-content-flex-start" >
+                    <div class="col-6">
+                        <input type="text" class="form-control" placeholder="Описание" name="spendingmemo" id="spendingMemo"  value="{{spending.memo}}">
+                    </div>
+                    <div class="col-6">
+                        <div class="row flex-nowrap">
+                                {% if budget.get_all_attrs().__len__() > 0 %}
+                                <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown" aria-expanded="false">...</button>
+                                <ul class="dropdown-menu">
+                                    {% for attr in budget.get_all_attrs() %}
+                                        <li>
+                                        <input type="submit" class="dropdown-item" name="spendingattrexisting" value="{{attr.memo}}">
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+                                {% endif %}
+                                <input type="text" class="form-control" placeholder="Тэг" name="spendingattr" id="spendingAttr"  value="{{spending.attr.memo}}">
+                        </div>
+                    </div>
                 </div>
             </div>
-            -->
 
-
-            <div class="row align-items-center">
-                <div class="col-auto">
-                    <div class="form-group">
-                        <label for="spendingPayer">Оплатил</label>
+            <!-- Оплативший -->
+            <div class="col-auto mt-4">
+                <div class="row-auto">
+                    <label for="spendingPayer">Оплатил</label>
+                </div>
+                <div class="row">
+                    <div class="col-sm">
                         <select class="form-control" name="spendingpayer" id="spendingPayer">
                             {% for person in budget.persons_list %}
                             <option {% if person.name == spending.payer.name %} selected {% endif %} >{{person.name}}</option>
                             {% endfor %}
                         </select>
-                        <small class="form-text text-info">Не забудьте отправить форму</small>
-                    </div>
-                </div>
-                <div class="col-auto">
-                    <div class="form-group mx-1 align-self-center">
-                        <!-- Ок в виде галочки
-                        <input type="image" alt="Ок" src="{{url_for('static', filename='ok.png')}}" class="pictobutton">
-                        -->
-                        <input class="form-control btn-success" name="ok" type="submit" value="Ок">
                     </div>
                 </div>
             </div>
+
+            <!-- Кнопка "Сохранить заголовок" -->
+            <div class="row-auto mt-4 flex-nowrap">
+                <div class="col-sm">
+                    <input class="form-control btn-primary" name="ok" type="submit" value="Сохранить заголовок">
+                </div>
+            </div>
+
         </form>
     </div>
 </div>
 
-{% if spending.amount > 0 %}
+
 <!--Потребители-->
 <div class="card">
     <div class="card-header">
-        <p class="text-center h5">Потребители</p>
+        <p class="text-center h5">Шаг 2. Потребители</p>
     </div>
+    {% if spending.amount > 0 %}
     <div class="card-body justify-content-center row">
         <div class="col">
             {% if spending.is_calculated() %}
-            <h5 class="text-success text-center">Расход распределён</h5>
+            <h5 class="text-success text-center">Расход распределён: <span class="badge badge-success">{{"{0:8.2f}".format(spending.amount)}}</span> </h5>
             {% else %}
             <h5 class="text-danger text-center">Нераспределённая сумма: <span class="badge badge-danger">{{"{0:8.2f}".format(spending.get_undistributed_value())}}</span>
             </h5>
@@ -194,7 +171,7 @@
                             {% if consumer %}
                             <input class="form-control" name="amount" type="text" size="10" value="{{consumer.amount}}">
                             {% else%}
-                            <input class="form-control" name="amount" type="text" size="10" value="0">
+                            <input class="form-control" name="amount" type="text" size="10" value="{{'{0:8.2f}'.format(spending.get_undistributed_value())}}">
                             {%endif%}
                         </td>
                         <td>
@@ -206,10 +183,6 @@
                                 <option>{{person.name}}</option>
                                 {% endif %}
                                 {% endfor %}
-                                {% if consumer %}
-                                {% else%}
-                                <option selected class="text-primary font-italic my-0">Все</option>
-                                {% endif %}
                             </select>
                         </td>
                         <td>
@@ -223,44 +196,46 @@
                 </tbody>
             </table>
 
-            {% if spending.consumers_list.__len__() > 0 %}
-            <form method="post" name="calc"
-                  action="{{url_for('spending.calc')}}">
-                <div class="row">
-                    <div class="form-group col">
-                        <input name="aver" type="submit" value="Поровну" class="form-control btn btn-primary">
-                        <!--<small class="form-text text-info text-center my-0">Среднее арифметическое</small>-->
-                    </div>
-                    <div class="form-group col">
-                        <input name="weighted" type="submit" value="C весом" class="form-control btn btn-primary">
-                        <!--<small class="form-text text-info text-center my-0">Среднее взвешенное</small>-->
-                    </div>
+            <div class="row flex-nowrap">
+                <div class="col-auto">
+                    <p class="lead">Распределить: </p>
                 </div>
-            </form>
-            {% endif %}
+                <div class="col-auto">
+                    <form method="post" name="calc"
+                      action="{{url_for('spending.calc')}}">
+                    <div class="btn-group" >
+                        <input name="aver" type="submit" value="Поровну" class="btn btn-secondary mr-1">
+                        <input name="weighted" type="submit" value="C весом" class="btn btn-secondary">
+                    </div>
+                </form>
+                </div>
+            </div>
         </div>
     </div>
+    {% else %}
+    <div class="card-body justify-content-center row">
+        <em class="text-info text-center">
+        Для перехода к шагу 2 укажите сумму и оплатившего
+        </em>
+    </div>
+    {% endif %}
 </div>
-
-{% else %}
-<h5 class="text-info text-center">
-Укажите сумму и оплатившего для добавления потребителей
-</h5>
-{% endif %}
 
 <form method="post" name="ok"
       action="{{url_for('spending.submit', index=index)}}">
-    <div class="row mt-1">
-        <div class="form-group col">
-            {% if spending.is_calculated() and budget.is_participant(spending.payer.name) %}
+    <div class="col-auto mt-1">
+        {% if spending.is_calculated() and budget.is_participant(spending.payer.name) %}
+        <div class="form-group">
             <input class="form-control btn-success" name="ok" type="submit" value="Ок">
-            {% else %}
-            <!--<input class="form-control btn-secondary" disabled name="ok" type="submit" value="Ок"> -->
-            {% endif %}
         </div>
-        <div class="form-group col">
+        <div class="form-group">
             <input class="form-control btn-warning" name="cancel" type="submit" value="Отмена">
         </div>
+        {% else %}
+        <div class="form-group">
+            <input class="form-control btn-warning" name="cancel" type="submit" value="Отмена">
+        </div>
+        {% endif %}
     </div>
 </form>
 

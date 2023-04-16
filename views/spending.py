@@ -78,6 +78,11 @@ def edit_person(consumer_number=0):
 
 @bp.route('/edit-head', methods=['POST'])
 def edit_head():
+
+    if request.form.get('cancel') is not None:
+        g.budget.current_spending = None
+        return redirect(url_for('budget.edit'))
+
     amount = request.form['spendingamount']
     memo = request.form['spendingmemo']
     payer = request.form['spendingpayer']
@@ -86,31 +91,33 @@ def edit_head():
     if 'spendingattrexisting' in request.form:
         spendingattr = request.form['spendingattrexisting']
 
+    redirect_tag_str = '<meta http-equiv="refresh" content="2;url='+url_for('spending.edit')+'" />'
+
     if (amount is None) or (memo is None) or (payer is None) or (date is None):
         return 'Неверный запрос'
 
     if memo == '':
-        return 'Поле "Описание" не должно быть пустым!'
+        return redirect_tag_str + 'Поле "Описание" не должно быть пустым!'
 
     if not amount.replace('.', '1').isdigit():
-        return 'В поле "Сумма" должно быть число!'
+        return redirect_tag_str + 'В поле "Сумма" должно быть число!'
 
     datetime = dt.now()
 
     try:
         datetime = datetime.strptime(date, TSpending.get_date_format_s())
     except Exception:
-        return 'Неверная дата! Пожалуйста, введите дату в формате ДД.ММ.ГГГГ'
+        return redirect_tag_str + 'Неверная дата! Пожалуйста, введите дату в формате ДД.ММ.ГГГГ'
 
     g.budget.current_spending.amount = float(amount)
     g.budget.current_spending.memo = memo
     g.budget.current_spending.date_time = datetime
 
     if g.budget.current_spending.amount <= 0:
-        return 'Сумма траты должна быть больше 0!'
+        return redirect_tag_str+'Сумма траты должна быть больше 0!'
 
     if not g.budget.is_participant(payer):
-        return 'Оплачивать трату может только участник бюджета!'
+        return redirect_tag_str+'Оплачивать трату может только участник бюджета!'
 
     person = g.budget.get_person_by_name(payer)
     if person is not None:
@@ -118,12 +125,20 @@ def edit_head():
 
     g.budget.current_spending.attr.memo = spendingattr
 
+    if g.budget.current_spending.consumers_list.__len__() == 0:
+        g.budget.current_spending.add_consumer(g.budget.persons_list, 0)
+        g.budget.current_spending.calc_average()
+
     save_current_budget()
     return redirect(url_for('spending.edit'))
 
 
 @bp.route('/calc', methods=['POST'])
 def calc():
+
+    if g.budget.current_spending.consumers_list.__len__() == 0:
+        g.budget.current_spending.add_consumer(g.budget.persons_list, 0)
+
     if request.form.get('aver') is not None:
         g.budget.current_spending.calc_average()
     if request.form.get('weighted') is not None:
