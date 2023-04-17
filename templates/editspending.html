@@ -48,7 +48,7 @@
                 <div class="row flex-nowrap">
                     <div class="col-sm">
                         {% if spending.amount == 0 %}
-                        <input type="text" class="form-control" name="spendingamount" id="spendingAmount" inputmode="decimal" size="5">
+                        <input type="text" class="form-control" name="spendingamount" id="spendingAmount" inputmode="decimal" size="5" placeholder="0.0">
                         {% else %}
                         <input type="text" class="form-control" name="spendingamount" id="spendingAmount" inputmode="decimal" value="{{spending.amount}}" size="5">
                         {% endif %}
@@ -57,18 +57,27 @@
                          <input type="text" class="form-control" name="spendingdate" id="spendingDate"  value="{{spending.get_date_s()}}" size="5">
                     </div>
                 </div>
-                <div class="row flex-nowrap">
-                    <div class="col-6 offset-6">
-                        <small class="form-text text-muted">Формат: ДД.ММ.ГГГГ</small>
-                    </div>
-                </div>
             </div>
 
-            <!-- Описание и Тэг -->
-            <div class="col-auto mt-4">
+             <div class="col-auto mt-2">
+                 <input type="text" class="form-control" placeholder="Описание" name="spendingmemo" id="spendingMemo"  value="{{spending.memo}}">
+             </div>
+
+            <!-- Оплативший и Тэг -->
+            <div class="col-auto mt-2">
+                <div class="row flex-nowrap">
+                    <div class="col-6">
+                        <label for="spendingPayer">Оплатил</label>
+                    </div>
+                </div>
+
                 <div class="row justify-content-flex-start" >
                     <div class="col-6">
-                        <input type="text" class="form-control" placeholder="Описание" name="spendingmemo" id="spendingMemo"  value="{{spending.memo}}">
+                        <select class="form-control" name="spendingpayer" id="spendingPayer">
+                            {% for person in budget.persons_list %}
+                            <option {% if person.name == spending.payer.name %} selected {% endif %} >{{person.name}}</option>
+                            {% endfor %}
+                        </select>
                     </div>
                     <div class="col-6">
                         <div class="row flex-nowrap">
@@ -88,22 +97,6 @@
                 </div>
             </div>
 
-            <!-- Оплативший -->
-            <div class="col-auto mt-4">
-                <div class="row-auto">
-                    <label for="spendingPayer">Оплатил</label>
-                </div>
-                <div class="row">
-                    <div class="col-sm">
-                        <select class="form-control" name="spendingpayer" id="spendingPayer">
-                            {% for person in budget.persons_list %}
-                            <option {% if person.name == spending.payer.name %} selected {% endif %} >{{person.name}}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                </div>
-            </div>
-
             <!-- Кнопка "Сохранить заголовок" -->
             <div class="row-auto mt-4 flex-nowrap">
                 <div class="col-sm">
@@ -119,18 +112,21 @@
 <!--Потребители-->
 <div class="card">
     <div class="card-header">
-        <p class="text-center h5">Шаг 2. Потребители</p>
+        <p class="text-center h5">Шаг 2. Потребители
+            {% if spending.amount > 0 %}
+                (
+                {% if spending.is_calculated() %}
+                <span class="badge badge-success">{{"{0:8.2f}".format(spending.amount)}}</span>
+                {% else %}
+                <span class="badge badge-danger">{{"{0:8.2f}".format(spending.get_undistributed_value())}}</span>
+                {%endif%}
+                )
+            {%endif%}
+        </p>
     </div>
     {% if spending.amount > 0 %}
     <div class="card-body justify-content-center row">
         <div class="col">
-            {% if spending.is_calculated() %}
-            <h5 class="text-success text-center">Расход распределён: <span class="badge badge-success">{{"{0:8.2f}".format(spending.amount)}}</span> </h5>
-            {% else %}
-            <h5 class="text-danger text-center">Нераспределённая сумма: <span class="badge badge-danger">{{"{0:8.2f}".format(spending.get_undistributed_value())}}</span>
-            </h5>
-            {%endif%}
-
             <table class="table table-striped table-sm">
                 <thead class="thead-light">
                 <tr>
@@ -193,29 +189,53 @@
                     </form>
                 </tr>
                 {% endif %}
+
+                {% if spending.is_calculated() %}
+                {% else %}
+                <tr>
+                    <td>
+
+                    </td>
+                    <td>
+                        <span class="badge badge-danger">{{"{0:8.2f}".format(spending.get_undistributed_value())}}</span>
+                    </td>
+                    <td><h6>Остаток</h6></td>
+                    <td>
+
+                    </td>
+                </tr>
+                {%endif%}
+
+
                 </tbody>
             </table>
 
-            <div class="row flex-nowrap">
-                <div class="col-auto">
-                    <p class="lead">Распределить: </p>
-                </div>
-                <div class="col-auto">
-                    <form method="post" name="calc"
-                      action="{{url_for('spending.calc')}}">
+            <div class="row flex-nowrap justify-content-center">
+                <form method="post" name="calc" action="{{url_for('spending.calc')}}">
                     <div class="btn-group" >
                         <input name="aver" type="submit" value="Поровну" class="btn btn-secondary mr-1">
                         <input name="weighted" type="submit" value="C весом" class="btn btn-secondary">
                     </div>
                 </form>
-                </div>
             </div>
+
+            <!--
+            <div class="row-auto mt-2">
+                {% if spending.is_calculated() %}
+                <h6 class="text-success text-center">Распределённая сумма: <span class="badge badge-success">{{"{0:8.2f}".format(spending.amount)}}</span> </h6>
+                {% else %}
+                <h6 class="text-danger text-center">Нераспределённая сумма: <span class="badge badge-danger">{{"{0:8.2f}".format(spending.get_undistributed_value())}}</span>
+                </h6>
+                {%endif%}
+            </div>
+            -->
+
         </div>
     </div>
     {% else %}
     <div class="card-body justify-content-center row">
         <em class="text-info text-center">
-        Для перехода к шагу 2 укажите сумму и оплатившего
+        Для перехода к шагу 2 заполните заголовок траты
         </em>
     </div>
     {% endif %}

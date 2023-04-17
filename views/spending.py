@@ -96,11 +96,15 @@ def edit_head():
     if (amount is None) or (memo is None) or (payer is None) or (date is None):
         return 'Неверный запрос'
 
-    if memo == '':
-        return redirect_tag_str + 'Поле "Описание" не должно быть пустым!'
-
     if not amount.replace('.', '1').isdigit():
         return redirect_tag_str + 'В поле "Сумма" должно быть число!'
+
+    amount = float(amount)
+    if amount <= 0:
+        return redirect_tag_str+'Сумма траты должна быть больше 0!'
+
+    if memo == '':
+        return redirect_tag_str + 'Поле "Описание" не должно быть пустым!'
 
     datetime = dt.now()
 
@@ -109,12 +113,10 @@ def edit_head():
     except Exception:
         return redirect_tag_str + 'Неверная дата! Пожалуйста, введите дату в формате ДД.ММ.ГГГГ'
 
-    g.budget.current_spending.amount = float(amount)
+    g.budget.current_spending.amount = amount
     g.budget.current_spending.memo = memo
     g.budget.current_spending.date_time = datetime
 
-    if g.budget.current_spending.amount <= 0:
-        return redirect_tag_str+'Сумма траты должна быть больше 0!'
 
     if not g.budget.is_participant(payer):
         return redirect_tag_str+'Оплачивать трату может только участник бюджета!'
